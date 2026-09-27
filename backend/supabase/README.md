@@ -1,13 +1,13 @@
 # Supabase — Rede de Apoio
 
-Piloto atual: **Curitiba/PR**. Contrato da API para o front: [docs/API.md](../../docs/API.md).
+Piloto atual: **Curitiba/PR**. Contrato da API para o front: [API para o front](../../README.md#api-para-o-front).
 
 ## Regras do banco
 
 - **Toda mudança é uma migration nova** em `migrations/`, com nome `AAAAMMDDHHMMSS_descricao.sql`. Nunca edite uma migration que já foi aplicada.
 - As migrations são **idempotentes**: rodar de novo não duplica dados nem quebra.
 - Tabelas com dados sensíveis (`location_shares`, `institution_review_queue`) têm RLS ativo **sem política pública**. O front só usa as funções RPC.
-- Depois de mudar o banco, atualize `docs/API.md` e rode `tests/api_test.sql`.
+- Depois de mudar o banco, atualize a seção "API para o front" do README principal e rode `tests/api_test.sql`.
 
 ## Aplicar as migrations
 

@@ -2,7 +2,7 @@
 
 O backend é **100% Supabase**: banco PostgreSQL + PostGIS, API REST gerada pelo PostgREST e funções RPC em SQL. Não há servidor próprio para hospedar.
 
-O front (app Flutter e página de acompanhamento) **só consome a API** descrita em [docs/API.md](../docs/API.md). Ele nunca acessa tabelas sensíveis diretamente.
+O front (app Flutter e página de acompanhamento) **só consome a API** descrita em [API para o front](../README.md#api-para-o-front). Ele nunca acessa tabelas sensíveis diretamente.
 
 ## Estrutura
 
