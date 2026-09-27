@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
 
 /// Prévia demonstrativa do mapa de serviços de apoio.
 ///
@@ -36,7 +37,7 @@ class SupportMapPreview extends StatelessWidget {
                   left: 12,
                   top: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.85),
                       borderRadius: BorderRadius.circular(20),
@@ -81,7 +82,7 @@ class SupportMapPreview extends StatelessWidget {
                   right: 12,
                   bottom: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
@@ -96,7 +97,7 @@ class SupportMapPreview extends StatelessWidget {
                     child: Row(
                       children: [
                         const Icon(Icons.place_rounded, color: AppColors.pink, size: 20),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpacing.xs),
                         Expanded(
                           child: Text(
                             'Serviços de apoio próximos',
@@ -168,9 +169,9 @@ class _MapPin extends StatelessWidget {
             height: 5,
             color: color,
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: AppSpacing.xxs),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xxs),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(6),

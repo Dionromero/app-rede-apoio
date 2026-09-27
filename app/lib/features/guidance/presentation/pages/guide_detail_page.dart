@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/content/app_content.dart';
 import '../../../../core/services/emergency_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/simple_markdown.dart';
 
 /// Leitura de um guia de direitos/orientação.
@@ -20,12 +21,12 @@ class GuideDetailPage extends StatelessWidget {
       appBar: AppBar(title: Text(guia.title)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, AppSpacing.screen, AppSpacing.xl),
           children: [
             SimpleMarkdown(guia.content, omitirPrimeiroTitulo: true),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             const Divider(),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.xs),
 
             // Situação da revisão
             Row(
@@ -36,7 +37,7 @@ class GuideDetailPage extends StatelessWidget {
                   size: 16,
                   color: revisado != null ? const Color(0xFF2E7D32) : const Color(0xFFE65100),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
                     revisado != null
@@ -52,15 +53,15 @@ class GuideDetailPage extends StatelessWidget {
 
             // Fonte
             if (guia.sourceUrl != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               InkWell(
                 onTap: () => launchUrl(Uri.parse(guia.sourceUrl!), mode: LaunchMode.externalApplication),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
                   child: Row(
                     children: [
                       const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.primary),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: AppSpacing.xs),
                       Expanded(
                         child: Text(
                           'Fonte: ${guia.sourceName ?? 'página oficial'}',
@@ -77,7 +78,7 @@ class GuideDetailPage extends StatelessWidget {
               ),
             ],
 
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             const Text(
               'Este conteúdo orienta, mas não substitui atendimento especializado.',
               style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -87,7 +88,7 @@ class GuideDetailPage extends StatelessWidget {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, AppSpacing.screen, AppSpacing.sm),
           child: Row(
             children: [
               Expanded(
@@ -98,7 +99,7 @@ class GuideDetailPage extends StatelessWidget {
                   label: const Text('Emergência 190'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => EmergencyService.confirmarELigar180(context),

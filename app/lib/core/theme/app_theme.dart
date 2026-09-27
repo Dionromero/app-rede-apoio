@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
+import 'app_spacing.dart';
 
 abstract final class AppTheme {
   static ThemeData get light {
@@ -89,14 +90,14 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.all(Radius.circular(20)),
           side: BorderSide(color: AppColors.border, width: 1.5),
         ),
-        margin: EdgeInsets.only(bottom: 12),
+        margin: EdgeInsets.only(bottom: AppSpacing.sm),
       ),
 
       // Inputs
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
         hintStyle: const TextStyle(
           color: AppColors.textHint,
           fontWeight: FontWeight.w400,
@@ -146,7 +147,7 @@ abstract final class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs, vertical: AppSpacing.xxs),
       ),
 
       // Textos

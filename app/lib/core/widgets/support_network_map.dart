@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../features/support_network/domain/models/support_institution.dart';
 import '../config/app_config.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
 
 /// Mapa da rede de apoio (OpenStreetMap via flutter_map).
 ///
@@ -166,7 +167,7 @@ class _SupportNetworkMapState extends State<SupportNetworkMap> {
                   onTap: widget.onAmpliar!,
                 ),
               if (widget.onAmpliar != null && widget.onUsarLocalizacao != null)
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.xs),
               if (widget.onUsarLocalizacao != null)
                 _BotaoMapa(
                   icon: Icons.my_location_rounded,
@@ -183,7 +184,7 @@ class _SupportNetworkMapState extends State<SupportNetworkMap> {
             right: 60,
             top: 12,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.92),
                 borderRadius: BorderRadius.circular(12),
@@ -254,7 +255,7 @@ class _PinInstituicao extends StatelessWidget {
                 right: 0,
                 top: -2,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs, vertical: 1),
                   decoration: BoxDecoration(
                     color: AppColors.textPrimary,
                     borderRadius: BorderRadius.circular(10),

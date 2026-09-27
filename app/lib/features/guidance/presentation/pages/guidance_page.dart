@@ -4,6 +4,7 @@ import '../../../../core/content/app_content.dart';
 import '../../../../core/content/app_content_repository.dart';
 import '../../../../core/services/emergency_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import 'guide_detail_page.dart';
 
 /// Lista dos guias de direitos e orientações (vindos de `get_app_bootstrap`,
@@ -73,13 +74,13 @@ class _GuidancePageState extends State<GuidancePage> {
           : RefreshIndicator(
               onRefresh: _carregar,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, AppSpacing.screen, AppSpacing.xl),
                 children: [
                   Text(
                     'Informação para você entender seus direitos e decidir os próximos passos.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.sm),
 
                   if (algumSemRevisao)
                     const _Aviso(
@@ -100,7 +101,7 @@ class _GuidancePageState extends State<GuidancePage> {
                       children: [
                         for (final id in ['todas', ...categorias])
                           Padding(
-                            padding: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.only(right: AppSpacing.xs),
                             child: ChoiceChip(
                               label: Text(id == 'todas' ? 'Todos' : nomeCategoria(id)),
                               selected: _categoria == id,
@@ -110,11 +111,11 @@ class _GuidancePageState extends State<GuidancePage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.sm),
 
                   for (final guia in filtrados) _GuiaCard(guia: guia),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.sm),
                   const _RodapeEmergencia(),
                 ],
               ),
@@ -131,7 +132,7 @@ class _GuiaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Material(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
@@ -142,7 +143,7 @@ class _GuiaCard extends StatelessWidget {
             MaterialPageRoute(builder: (_) => GuideDetailPage(guia: guia)),
           ),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: AppColors.border),
@@ -162,7 +163,7 @@ class _GuiaCard extends StatelessWidget {
                     child: Text(guia.icon ?? '📘', style: const TextStyle(fontSize: 22)),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +177,7 @@ class _GuiaCard extends StatelessWidget {
                           color: AppColors.primary,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: AppSpacing.xxs),
                       Text(
                         guia.title,
                         style: const TextStyle(
@@ -185,7 +186,7 @@ class _GuiaCard extends StatelessWidget {
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.xxs),
                       Text(
                         guia.summary,
                         style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
@@ -212,8 +213,8 @@ class _Aviso extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF3E0),
         borderRadius: BorderRadius.circular(12),
@@ -223,7 +224,7 @@ class _Aviso extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 18, color: const Color(0xFFE65100)),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(texto, style: const TextStyle(fontSize: 12.5, color: Color(0xFFB34700))),
           ),
@@ -249,7 +250,7 @@ class _RodapeEmergencia extends StatelessWidget {
             label: const Text('190'),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: OutlinedButton.icon(
             onPressed: () => EmergencyService.confirmarELigar180(context),
