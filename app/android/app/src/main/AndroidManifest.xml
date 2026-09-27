@@ -31,7 +31,8 @@
         <!-- Atalhos da tela inicial. Só um fica ativo por vez (ver
              MainActivity.definirModoDiscreto). O modo discreto troca o
              ícone e o nome por um bloco de notas genérico, para não revelar
-             o app a quem mexer no celular. -->
+             o app a quem mexer no celular. Disfarces: Anotações (AtalhoDiscreto),
+             Calculadora, Treinos e Receitas. -->
         <activity-alias
             android:name=".AtalhoPadrao"
             android:targetActivity=".MainActivity"
@@ -49,6 +50,42 @@
             android:targetActivity=".MainActivity"
             android:label="Anotações"
             android:icon="@mipmap/ic_launcher_discreto"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".AtalhoCalculadora"
+            android:targetActivity=".MainActivity"
+            android:label="Calculadora"
+            android:icon="@mipmap/ic_launcher_calculadora"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".AtalhoTreinos"
+            android:targetActivity=".MainActivity"
+            android:label="Treinos"
+            android:icon="@mipmap/ic_launcher_treinos"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".AtalhoReceitas"
+            android:targetActivity=".MainActivity"
+            android:label="Receitas"
+            android:icon="@mipmap/ic_launcher_receitas"
             android:enabled="false"
             android:exported="true">
             <intent-filter>

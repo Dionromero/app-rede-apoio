@@ -6,6 +6,8 @@ import '../../../../core/content/guide_icons.dart';
 import '../../../../core/services/emergency_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/category_tabs.dart';
 import 'guide_detail_page.dart';
 
 /// Lista dos guias de direitos e orientações (vindos de `get_app_bootstrap`,
@@ -95,22 +97,13 @@ class _GuidancePageState extends State<GuidancePage> {
                       texto: 'Sem conexão: mostrando o conteúdo salvo no aparelho.',
                     ),
 
-                  // Filtro por tema
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (final id in ['todas', ...categorias])
-                          Padding(
-                            padding: const EdgeInsets.only(right: AppSpacing.xs),
-                            child: ChoiceChip(
-                              label: Text(id == 'todas' ? 'Todos' : nomeCategoria(id)),
-                              selected: _categoria == id,
-                              onSelected: (_) => setState(() => _categoria = id),
-                            ),
-                          ),
-                      ],
-                    ),
+                  // Filtro por tema: mesmas abas da Home, do mapa e da lista.
+                  CategoryTabs(
+                    itens: [
+                      for (final id in ['todas', ...categorias]) (id, id == 'todas' ? 'Todos' : nomeCategoria(id)),
+                    ],
+                    selecionado: _categoria,
+                    onSelecionar: (id) => setState(() => _categoria = id),
                   ),
                   const SizedBox(height: AppSpacing.sm),
 
@@ -136,9 +129,9 @@ class _GuiaCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Material(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppShape.radiusLg),
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppShape.radiusLg),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => GuideDetailPage(guia: guia)),
@@ -146,7 +139,7 @@ class _GuiaCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(AppShape.radiusLg),
               border: Border.all(color: AppColors.border),
             ),
             child: Row(
@@ -175,11 +168,11 @@ class _GuiaCard extends StatelessWidget {
                     children: [
                       Text(
                         _GuidancePageState.nomeCategoria(guia.category).toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.4,
-                          color: AppColors.primary,
+                          color: guia.category == 'emergencia' ? AppColors.wine : AppColors.ink,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xxs),

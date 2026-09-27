@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#6E2934</color>
+    <!-- Disfarces do modo discreto -->
     <color name="ic_launcher_discreto_background">#F2F2F2</color>
+    <color name="ic_launcher_calculadora_background">#2B2F36</color>
+    <color name="ic_launcher_treinos_background">#E6F2EA</color>
+    <color name="ic_launcher_receitas_background">#FDEEE2</color>
     <!-- Fundo da tela de abertura (AppColors.sand) -->
     <color name="splash_background">#F6F1E9</color>
 </resources>

@@ -339,7 +339,7 @@ class _HomePageState extends State<HomePage> {
                         cor: AppColors.ink,
                         fundo: AppColors.inkSoft,
                         titulo: 'Modo discreto',
-                        descricao: 'Troque o ícone do app por um disfarce.',
+                        descricao: 'Disfarce o ícone: calculadora, anotações e outros.',
                         onTap: () => Navigator.pushNamed(context, DiscreetModePage.routeName),
                       ),
                   ],

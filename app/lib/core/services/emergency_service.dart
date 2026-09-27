@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../utils/telefone_br.dart';
 
 /// Serviço para ações de emergência: ligação 190, 180 e discagem direta.
 ///
@@ -28,7 +29,7 @@ class EmergencyService {
   /// com discador disponível. Se retornar `false`, a interface DEVE mostrar o
   /// número em destaque para a usuária discar manualmente.
   static Future<bool> discar(String numero) async {
-    final uri = Uri(scheme: 'tel', path: numero);
+    final uri = Uri(scheme: 'tel', path: TelefoneBr.paraDiscagem(numero));
     try {
       return await launchUrl(uri);
     } catch (_) {

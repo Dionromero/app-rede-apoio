@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rede_apoio/core/services/discreet_mode_service.dart';
 import 'package:rede_apoio/features/discreet_mode/presentation/pages/discreet_mode_page.dart';
 
 void main() {
   const canal = MethodChannel('rede_apoio/modo_discreto');
-  final chamadas = <MethodCall>[];
-  var ativo = false;
+  var atalho = 'AtalhoPadrao';
 
   setUp(() {
-    chamadas.clear();
-    ativo = false;
+    atalho = 'AtalhoPadrao';
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(canal, (call) async {
-      chamadas.add(call);
-      if (call.method == 'ativo') return ativo;
+      if (call.method == 'atual') return atalho;
       if (call.method == 'definir') {
-        ativo = (call.arguments as Map)['ativo'] as bool;
+        atalho = (call.arguments as Map)['atalho'] as String;
         return true;
       }
       return null;
@@ -26,20 +24,35 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(canal, null);
   });
 
-  testWidgets('troca para o ícone disfarçado e volta', (tester) async {
+  test('todos os disfarces têm atalho, nome e imagem únicos', () {
+    final todos = DiscreetModeService.todos;
+    expect(todos.map((d) => d.atalho).toSet(), hasLength(todos.length));
+    expect(todos.map((d) => d.nome).toSet(), hasLength(todos.length));
+    expect(DiscreetModeService.porAtalho('desconhecido').ehPadrao, isTrue);
+  });
+
+  testWidgets('troca para a calculadora e volta ao ícone original', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: DiscreetModePage()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Anotações'), findsOneWidget);
-    expect(find.text('Em uso'), findsOneWidget); // ícone padrão selecionado
+    for (final d in DiscreetModeService.disfarces) {
+      expect(find.text(d.nome), findsOneWidget);
+    }
 
-    await tester.tap(find.text('Anotações'));
+    await tester.tap(find.text('Calculadora'));
     await tester.pumpAndSettle();
-    expect(ativo, isTrue);
-    expect(chamadas.last.method, 'definir');
+    expect(atalho, 'AtalhoCalculadora');
+    // Espera o aviso (SnackBar) sumir para não cobrir as opções.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Rede de Apoio'));
+    // O ícone original fica no fim da lista, fora da tela no teste:
+    // rolar a lista principal (a primeira Scrollable) até ele.
+    final original = find.text('Rede de Apoio');
+    await tester.scrollUntilVisible(original, 300, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
-    expect(ativo, isFalse);
+    await tester.tap(original);
+    await tester.pumpAndSettle();
+    expect(atalho, 'AtalhoPadrao');
   });
 }

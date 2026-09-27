@@ -9,18 +9,31 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val canal = "rede_apoio/modo_discreto"
 
+    /** Atalhos declarados no AndroidManifest.xml (activity-alias). */
+    private val atalhos = listOf(
+        "AtalhoPadrao",
+        "AtalhoDiscreto", // Anotações
+        "AtalhoCalculadora",
+        "AtalhoTreinos",
+        "AtalhoReceitas",
+    )
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, canal).setMethodCallHandler { call, result ->
             when (call.method) {
-                "ativo" -> result.success(modoDiscretoAtivo())
+                "atual" -> result.success(atalhoAtivo())
                 "definir" -> {
-                    val ativar = call.argument<Boolean>("ativo") ?: false
-                    try {
-                        definirModoDiscreto(ativar)
-                        result.success(true)
-                    } catch (e: Exception) {
-                        result.error("falha", e.message, null)
+                    val alvo = call.argument<String>("atalho")
+                    if (alvo == null || alvo !in atalhos) {
+                        result.error("atalho_invalido", "Atalho desconhecido: $alvo", null)
+                    } else {
+                        try {
+                            ativarAtalho(alvo)
+                            result.success(true)
+                        } catch (e: Exception) {
+                            result.error("falha", e.message, null)
+                        }
                     }
                 }
                 else -> result.notImplemented()
@@ -29,31 +42,39 @@ class MainActivity : FlutterActivity() {
     }
 
     // Nome completo da classe (namespace do código, não o applicationId).
-    private fun atalho(nome: String) =
+    private fun componente(nome: String) =
         ComponentName(this, "${MainActivity::class.java.name.substringBeforeLast('.')}.$nome")
 
-    private fun modoDiscretoAtivo(): Boolean =
-        packageManager.getComponentEnabledSetting(atalho("AtalhoDiscreto")) ==
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+    private fun ligado(nome: String): Boolean {
+        val estado = packageManager.getComponentEnabledSetting(componente(nome))
+        // DEFAULT = o que está no manifest: só o AtalhoPadrao nasce ligado.
+        return if (estado == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+            nome == "AtalhoPadrao"
+        } else {
+            estado == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        }
+    }
+
+    private fun atalhoAtivo(): String = atalhos.firstOrNull { ligado(it) } ?: "AtalhoPadrao"
 
     /**
-     * Liga um atalho e desliga o outro. DONT_KILL_APP mantém o app aberto;
-     * o launcher pode levar alguns segundos para mostrar o novo ícone.
-     * O atalho novo é ligado antes de desligar o antigo, para nunca ficar
-     * sem ícone na tela inicial.
+     * Liga o atalho escolhido e depois desliga os outros, para nunca ficar
+     * sem ícone. DONT_KILL_APP mantém o app aberto; o launcher pode levar
+     * alguns segundos para mostrar o novo ícone.
      */
-    private fun definirModoDiscreto(ativar: Boolean) {
-        val ligar = if (ativar) "AtalhoDiscreto" else "AtalhoPadrao"
-        val desligar = if (ativar) "AtalhoPadrao" else "AtalhoDiscreto"
+    private fun ativarAtalho(alvo: String) {
         packageManager.setComponentEnabledSetting(
-            atalho(ligar),
+            componente(alvo),
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
             PackageManager.DONT_KILL_APP,
         )
-        packageManager.setComponentEnabledSetting(
-            atalho(desligar),
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP,
-        )
+        for (outro in atalhos) {
+            if (outro == alvo) continue
+            packageManager.setComponentEnabledSetting(
+                componente(outro),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP,
+            )
+        }
     }
 }

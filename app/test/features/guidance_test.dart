@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rede_apoio/core/widgets/category_tabs.dart';
 import 'package:rede_apoio/core/widgets/simple_markdown.dart';
 import 'package:rede_apoio/features/guidance/presentation/pages/guidance_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,7 +70,7 @@ linha dois.
       await tester.pumpWidget(const MaterialApp(home: GuidancePage()));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Segurança'));
+      await tester.tap(find.descendant(of: find.byType(CategoryTabs), matching: find.text('Segurança')));
       await tester.pumpAndSettle();
 
       expect(find.text('Plano de segurança'), findsOneWidget);

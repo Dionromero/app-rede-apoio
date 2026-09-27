@@ -19,37 +19,60 @@ class DiscreetModePage extends StatefulWidget {
 }
 
 class _DiscreetModePageState extends State<DiscreetModePage> {
-  bool? _discreto;
-  bool _salvando = false;
+  Disfarce? _atual;
+  Disfarce? _salvando;
 
   @override
   void initState() {
     super.initState();
-    DiscreetModeService.ativo().then((v) {
-      if (mounted) setState(() => _discreto = v);
+    DiscreetModeService.atual().then((d) {
+      if (mounted) setState(() => _atual = d);
     });
   }
 
-  Future<void> _escolher(bool discreto) async {
-    if (_salvando || discreto == _discreto) return;
+  Future<void> _escolher(Disfarce escolha) async {
+    if (_salvando != null || escolha.atalho == _atual?.atalho) return;
     HapticFeedback.selectionClick();
-    setState(() => _salvando = true);
-    final ok = await DiscreetModeService.definir(discreto);
+    setState(() => _salvando = escolha);
+    final ok = await DiscreetModeService.definir(escolha);
     if (!mounted) return;
     setState(() {
-      _salvando = false;
-      if (ok) _discreto = discreto;
+      _salvando = null;
+      if (ok) _atual = escolha;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          !ok
-              ? 'Não foi possível trocar o ícone neste aparelho.'
-              : discreto
-                  ? 'Pronto. Em alguns segundos o app aparece como "${DiscreetModeService.nomeDisfarce}".'
-                  : 'Pronto. O ícone da Rede de Apoio volta em alguns segundos.',
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            !ok
+                ? 'Não foi possível trocar o ícone neste aparelho.'
+                : escolha.ehPadrao
+                    ? 'Pronto. O ícone da Rede de Apoio volta em alguns segundos.'
+                    : 'Pronto. Em alguns segundos o app aparece como "${escolha.nome}".',
+          ),
         ),
-      ),
+      );
+  }
+
+  Widget _grade(List<Disfarce> itens) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: AppSpacing.sm,
+      crossAxisSpacing: AppSpacing.sm,
+      childAspectRatio: 1.05,
+      children: [
+        for (final d in itens)
+          _OpcaoIcone(
+            imagem: d.imagem,
+            nome: d.nome,
+            selecionado: _atual?.atalho == d.atalho,
+            carregando: _salvando?.atalho == d.atalho,
+            onTap: () => _escolher(d),
+          ),
+      ],
     );
   }
 
@@ -71,8 +94,8 @@ class _DiscreetModePageState extends State<DiscreetModePage> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Com o modo discreto, a tela inicial mostra um bloco de notas chamado '
-              '"${DiscreetModeService.nomeDisfarce}". Por dentro, o app continua igual.',
+              'Escolha um disfarce: a tela inicial passa a mostrar outro ícone e outro nome, '
+              'como uma calculadora. Por dentro, o app continua igual.',
               style: t.bodyLarge?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: AppSpacing.xl),
@@ -81,38 +104,28 @@ class _DiscreetModePageState extends State<DiscreetModePage> {
                 icone: Icons.info_outline_rounded,
                 texto: 'A troca de ícone está disponível no app instalado no Android.',
               )
-            else
-              Row(
-                children: [
-                  Expanded(
-                    child: _OpcaoIcone(
-                      imagem: 'assets/brand/icone-192.png',
-                      nome: 'Rede de Apoio',
-                      selecionado: _discreto == false,
-                      carregando: _salvando && _discreto == true,
-                      onTap: () => _escolher(false),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: _OpcaoIcone(
-                      imagem: 'assets/brand/icone-discreto-192.png',
-                      nome: DiscreetModeService.nomeDisfarce,
-                      selecionado: _discreto == true,
-                      carregando: _salvando && _discreto == false,
-                      onTap: () => _escolher(true),
-                    ),
-                  ),
-                ],
-              ).animate().fadeIn(duration: AppShape.medio),
+            else ...[
+              Text('Disfarces', style: t.titleMedium),
+              const SizedBox(height: AppSpacing.xs),
+              _grade(DiscreetModeService.disfarces).animate().fadeIn(duration: AppShape.medio),
+              const SizedBox(height: AppSpacing.lg),
+              Text('Ícone original', style: t.titleMedium),
+              const SizedBox(height: AppSpacing.xs),
+              _grade(const [DiscreetModeService.padrao]),
+            ],
             const SizedBox(height: AppSpacing.xl),
             Text('Bom saber', style: t.titleMedium),
             const SizedBox(height: AppSpacing.xs),
             const _Nota(
               icone: Icons.schedule_rounded,
               texto: 'O ícone pode levar alguns segundos para mudar. Em alguns celulares o '
-                  'atalho sai da tela inicial: procure "Anotações" na lista de apps e '
+                  'atalho sai da tela inicial: procure o novo nome na lista de apps e '
                   'arraste de volta.',
+            ),
+            const _Nota(
+              icone: Icons.touch_app_outlined,
+              texto: 'Ao abrir pelo disfarce, o app abre normalmente. O disfarce protege de '
+                  'uma olhada rápida na tela, não de quem abre o app.',
             ),
             const _Nota(
               icone: Icons.logout_rounded,
@@ -157,7 +170,7 @@ class _OpcaoIcone extends StatelessWidget {
         child: AnimatedContainer(
           duration: AppShape.medio,
           curve: AppShape.curva,
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg, horizontal: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
           decoration: BoxDecoration(
             color: selecionado ? AppColors.paper : AppColors.sandDeep.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(AppShape.radiusLg),
@@ -167,10 +180,11 @@ class _OpcaoIcone extends StatelessWidget {
             ),
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(18),
-                child: Image.asset(imagem, width: 72, height: 72),
+                child: Image.asset(imagem, width: 64, height: 64),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(nome, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),

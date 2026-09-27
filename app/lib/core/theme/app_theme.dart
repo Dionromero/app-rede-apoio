@@ -207,7 +207,12 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surface,
         selectedColor: AppColors.wineSoft,
-        labelStyle: const TextStyle(fontFamily: body, fontWeight: FontWeight.w700, fontSize: 13),
+        labelStyle: const TextStyle(
+          fontFamily: body,
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+          color: AppColors.textPrimary, // sem cor, o texto sumia no Android
+        ),
         side: const BorderSide(color: AppColors.border, width: 1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppShape.radiusSm)),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs, vertical: AppSpacing.xxs),

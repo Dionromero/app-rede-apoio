@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/config/supabase_config.dart';
+import '../../../../core/utils/telefone_br.dart';
 import '../../../../core/utils/text_normalizer.dart';
 import '../domain/models/route_plan.dart';
 import '../domain/models/support_institution.dart';
@@ -190,8 +191,8 @@ class SupportNetworkService {
 
   /// Inicia discagem para o telefone da instituição.
   static Future<bool> ligar(String telefone) async {
-    final sanitizado = telefone.replaceAll(RegExp(r'[^\d+]'), '');
-    final uri = Uri(scheme: 'tel', path: sanitizado);
+    // +55 DDD número: evita "número incorreto" (ver TelefoneBr).
+    final uri = Uri(scheme: 'tel', path: TelefoneBr.paraDiscagem(telefone));
     try {
       return await launchUrl(uri);
     } catch (_) {
