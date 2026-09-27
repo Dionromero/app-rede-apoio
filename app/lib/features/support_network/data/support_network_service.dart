@@ -30,7 +30,7 @@ class ResultadoBusca {
 ///
 /// A busca acontece no servidor (RPC `search_institutions`), sobre a base
 /// curada. Se não houver conexão, usa uma lista local mínima e verificada,
-/// aplicando as mesmas regras de filtro (Regras 1 e 5 do AGENTS.md).
+/// aplicando as mesmas regras de filtro (regras de segurança 1 e 5 do README).
 class SupportNetworkService {
   const SupportNetworkService._();
 
