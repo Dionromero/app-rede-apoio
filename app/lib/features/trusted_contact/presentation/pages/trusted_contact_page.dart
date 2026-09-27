@@ -11,6 +11,20 @@ import '../../../home/presentation/pages/home_page.dart';
 import '../../data/trusted_contact_repository.dart';
 import '../../domain/trusted_contact.dart';
 
+/// Tamanho máximo do nome da pessoa de confiança.
+const _maxNome = 30;
+
+/// Aplica ao nome vindo da agenda as mesmas regras do campo: sem números e
+/// até [_maxNome] caracteres.
+String _limparNome(String nome) => nome
+    .replaceAll(RegExp(r'\d'), '')
+    .replaceAll(RegExp(r'\s+'), ' ')
+    .trim()
+    .characters
+    .take(_maxNome)
+    .toString()
+    .trimRight();
+
 class TrustedContactPage extends StatefulWidget {
   const TrustedContactPage({super.key, this.repository});
 
@@ -24,14 +38,14 @@ class TrustedContactPage extends StatefulWidget {
 }
 
 class _TrustedContactPageState extends State<TrustedContactPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
   late final _repo = widget.repository ?? TrustedContactRepository.instance;
 
   List<TrustedContact> _contatos = [];
 
   bool get _noLimite => _contatos.length >= TrustedContactRepository.limite;
+
+  /// No onboarding a tela substitui a anterior; pela Home, dá para voltar.
+  bool get _noOnboarding => !Navigator.of(context).canPop();
 
   @override
   void initState() {
@@ -39,24 +53,16 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
     _carregar();
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    super.dispose();
-  }
-
   Future<void> _carregar() async {
     final contatos = await _repo.carregarTodos();
     if (mounted) setState(() => _contatos = contatos);
   }
 
-  void _continuar() {
-    final navigator = Navigator.of(context);
-    if (navigator.canPop()) {
-      navigator.pop();
+  void _concluir() {
+    if (_noOnboarding) {
+      Navigator.of(context).pushReplacementNamed(HomePage.routeName);
     } else {
-      navigator.pushReplacementNamed(HomePage.routeName);
+      Navigator.of(context).pop();
     }
   }
 
@@ -80,7 +86,7 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
     try {
       escolhido = await FlutterNativeContactPicker().selectPhoneNumber();
     } catch (e) {
-      _avisar('Não foi possível abrir a agenda. Digite o contato abaixo.');
+      _avisar('Não foi possível abrir a agenda. Use "Digitar número".');
       return;
     }
     if (escolhido == null || !mounted) return;
@@ -90,41 +96,42 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
       _avisar('Esse número não parece um telefone brasileiro com DDD.');
       return;
     }
-    setState(() {
-      _nameController.text = (escolhido!.fullName ?? '').trim();
-      _phoneController.text = TrustedContact(name: '', phone: numero).formattedPhone;
-    });
-    _avisar('Confira o nome e toque em "Adicionar à lista".');
+    await _abrirFormulario(
+      nome: _limparNome(escolhido.fullName ?? ''),
+      telefone: TrustedContact(name: '', phone: numero).formattedPhone,
+    );
   }
 
-  Future<void> _adicionar() async {
-    if (!_formKey.currentState!.validate()) return;
-    final contato = TrustedContact.fromInput(
-      name: _nameController.text,
-      phone: _phoneController.text,
+  Future<void> _abrirFormulario({String nome = '', String telefone = ''}) async {
+    final adicionado = await showModalBottomSheet<TrustedContact>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      useSafeArea: true,
+      backgroundColor: AppColors.surface,
+      builder: (_) => _FormularioPessoa(
+        nomeInicial: nome,
+        telefoneInicial: telefone,
+        daAgenda: telefone.isNotEmpty,
+        aoAdicionar: _adicionar,
+      ),
     );
-    if (contato == null) return;
-
-    final ResultadoAdicao resultado;
-    try {
-      resultado = await _repo.adicionar(contato);
-    } catch (e) {
-      _avisar('Não foi possível salvar agora. Tente de novo.');
-      return;
-    }
+    if (adicionado == null || !mounted) return;
+    await _carregar();
     if (!mounted) return;
+    _avisar('${adicionado.name} está na sua lista. Nada foi enviado.');
+  }
 
-    switch (resultado) {
-      case ResultadoAdicao.adicionado:
-        _nameController.clear();
-        _phoneController.clear();
-        await _carregar();
-        if (!mounted) return;
-        _avisar('${contato.name} está na sua lista. Nada foi enviado.');
-      case ResultadoAdicao.duplicado:
-        _avisar('Esse número já está na sua lista.');
-      case ResultadoAdicao.limiteAtingido:
-        _avisar('Sua lista já tem ${TrustedContactRepository.limite} pessoas.');
+  /// Devolve a mensagem de erro para o painel, ou `null` se deu certo.
+  Future<String?> _adicionar(TrustedContact contato) async {
+    try {
+      return switch (await _repo.adicionar(contato)) {
+        ResultadoAdicao.adicionado => null,
+        ResultadoAdicao.duplicado => 'Esse número já está na sua lista.',
+        ResultadoAdicao.limiteAtingido => 'Sua lista já tem ${TrustedContactRepository.limite} pessoas.',
+      };
+    } catch (e) {
+      return 'Não foi possível salvar agora. Tente de novo.';
     }
   }
 
@@ -156,6 +163,9 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
   @override
   Widget build(BuildContext context) {
     const limite = TrustedContactRepository.limite;
+    final textos = Theme.of(context).textTheme;
+    final vazia = _contatos.isEmpty;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -163,140 +173,310 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
       ),
       child: Scaffold(
         body: SafeArea(
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
-              children: [
-                // ── Cabeçalho com progresso ─────────────────────────────
-                const _StepHeader(currentStep: 1, totalSteps: 2),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xl),
+            children: [
+              // ── Cabeçalho: progresso no onboarding, voltar pela Home ────
+              _StepHeader(currentStep: _noOnboarding ? 1 : null, totalSteps: 2),
 
-                const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: AppSpacing.xl),
 
-                // ── Ícone ilustrativo ───────────────────────────────────
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: AppColors.pinkSoft,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.people_alt_rounded,
-                    color: AppColors.pink,
-                    size: 32,
-                  ),
-                ),
+              // ── Título e subtítulo ──────────────────────────────────
+              Text('Pessoas de confiança', style: textos.headlineSmall),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Até $limite pessoas que você gostaria de avisar se precisar. '
+                'Nada é enviado agora.',
+                style: textos.bodyLarge?.copyWith(height: 1.5, color: AppColors.textSecondary),
+              ),
 
-                const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.xl),
 
-                // ── Título e subtítulo ──────────────────────────────────
+              // ── Lista ───────────────────────────────────────────────
+              if (vazia)
+                const _ListaVazia()
+              else ...[
+                for (final contato in _contatos)
+                  _ContactTile(contato: contato, onRemove: () => _remover(contato)),
                 Text(
-                  'Suas pessoas de confiança',
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  '${_contatos.length} de $limite',
+                  style: textos.labelMedium?.copyWith(color: AppColors.textSecondary),
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Escolha até $limite pessoas que você gostaria de avisar no futuro. '
-                  'Nenhuma localização ou mensagem será enviada agora.',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        height: 1.55,
-                      ),
-                ),
+              ],
 
-                const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: AppSpacing.xl),
 
-                // ── Lista de pessoas cadastradas ────────────────────────
-                if (_contatos.isNotEmpty) ...[
-                  Text(
-                    'Cadastradas (${_contatos.length} de $limite)',
-                    style: Theme.of(context).textTheme.titleSmall,
+              // ── Adicionar: agenda (só no celular) ou digitando ──────
+              if (_noLimite)
+                const _LimitNotice()
+              else ...[
+                if (!kIsWeb) ...[
+                  OutlinedButton.icon(
+                    onPressed: _escolherDaAgenda,
+                    icon: const Icon(Icons.contacts_rounded, size: 20),
+                    label: const Text('Escolher da agenda'),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  for (final contato in _contatos)
-                    _ContactTile(contato: contato, onRemove: () => _remover(contato)),
-                  const SizedBox(height: AppSpacing.xl),
                 ],
+                OutlinedButton.icon(
+                  onPressed: () => _abrirFormulario(),
+                  icon: const Icon(Icons.dialpad_rounded, size: 20),
+                  label: const Text('Digitar número'),
+                ),
+              ],
 
-                if (_noLimite)
-                  const _LimitNotice()
-                else ...[
-                  // ── Importar da agenda (só no celular) ──────────────────
-                  if (!kIsWeb) ...[
-                    OutlinedButton.icon(
-                      onPressed: _escolherDaAgenda,
-                      icon: const Icon(Icons.contacts_rounded, size: 20),
-                      label: const Text('Escolher da agenda'),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                  ],
+              const SizedBox(height: AppSpacing.xl),
 
-                  // ── Campos do formulário ────────────────────────────────
-                  TextFormField(
-                    controller: _nameController,
-                    textCapitalization: TextCapitalization.words,
-                    inputFormatters: [PrimeiraLetraMaiusculaInputFormatter()],
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                      labelText: 'Nome da pessoa',
-                      hintText: 'Ex.: Maria Silva',
-                      prefixIcon: Icon(Icons.person_outline_rounded),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().length < 2) {
-                        return 'Informe um nome para continuar.';
-                      }
-                      return null;
-                    },
+              const _AvisoPrivacidade(),
+            ],
+          ),
+        ),
+
+        // ── Ação principal, sempre visível ──────────────────────────
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, AppSpacing.screen, AppSpacing.md),
+            child: vazia
+                ? TextButton(
+                    onPressed: _concluir,
+                    child: Text(_noOnboarding ? 'Pular por agora' : 'Voltar'),
+                  )
+                : FilledButton(
+                    onPressed: _concluir,
+                    child: Text(_noOnboarding ? 'Continuar' : 'Concluir'),
                   ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-                  const SizedBox(height: AppSpacing.md),
+// ── Widget: Painel para adicionar uma pessoa ───────────────────────────────
 
-                  TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [TelefoneBrInputFormatter()],
-                    textInputAction: TextInputAction.done,
-                    decoration: const InputDecoration(
-                      labelText: 'Telefone',
-                      hintText: '(00) 00000-0000',
-                      prefixIcon: Icon(Icons.phone_outlined),
-                    ),
-                    validator: (value) {
-                      if (TrustedContact.normalizarTelefoneBr(value ?? '') == null) {
-                        return 'Informe um telefone válido.';
-                      }
-                      return null;
-                    },
-                  ),
+class _FormularioPessoa extends StatefulWidget {
+  const _FormularioPessoa({
+    required this.nomeInicial,
+    required this.telefoneInicial,
+    required this.daAgenda,
+    required this.aoAdicionar,
+  });
 
-                  const SizedBox(height: AppSpacing.lg),
+  final String nomeInicial;
+  final String telefoneInicial;
+  final bool daAgenda;
 
-                  // ── Aviso de consentimento ──────────────────────────────
-                  _ConsentBanner(),
+  /// Salva e devolve a mensagem de erro, ou `null` se deu certo.
+  final Future<String?> Function(TrustedContact contato) aoAdicionar;
 
-                  const SizedBox(height: AppSpacing.xxl),
+  @override
+  State<_FormularioPessoa> createState() => _FormularioPessoaState();
+}
 
-                  // ── Botão primário (CTA) ────────────────────────────────
-                  FilledButton.icon(
-                    onPressed: _adicionar,
-                    icon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
-                    label: const Text('Adicionar à lista'),
-                  ),
+class _FormularioPessoaState extends State<_FormularioPessoa> {
+  final _formKey = GlobalKey<FormState>();
+  late final _nome = TextEditingController(text: widget.nomeInicial);
+  late final _telefone = TextEditingController(text: widget.telefoneInicial);
+  String? _erro;
+  bool _salvando = false;
+
+  @override
+  void dispose() {
+    _nome.dispose();
+    _telefone.dispose();
+    super.dispose();
+  }
+
+  Future<void> _enviar() async {
+    if (_salvando || !_formKey.currentState!.validate()) return;
+    final contato = TrustedContact.fromInput(name: _nome.text, phone: _telefone.text);
+    if (contato == null) return;
+
+    setState(() {
+      _salvando = true;
+      _erro = null;
+    });
+    final erro = await widget.aoAdicionar(contato);
+    if (!mounted) return;
+    if (erro == null) {
+      Navigator.of(context).pop(contato);
+    } else {
+      setState(() {
+        _salvando = false;
+        _erro = erro;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textos = Theme.of(context).textTheme;
+    return Padding(
+      // Sobe junto com o teclado.
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.screen, 0, AppSpacing.screen, AppSpacing.xl),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Nova pessoa de confiança', style: textos.titleLarge),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                widget.daAgenda
+                    ? 'Confira os dados. Se quiser, troque o nome por um apelido, como “Mãe”.'
+                    : 'Pode ser um apelido, como “Mãe”. Nada é enviado a essa pessoa agora.',
+                style: textos.bodyMedium?.copyWith(height: 1.5, color: AppColors.textSecondary),
+              ),
+
+              const SizedBox(height: AppSpacing.xl),
+
+              TextFormField(
+                controller: _nome,
+                autofocus: !widget.daAgenda,
+                textCapitalization: TextCapitalization.words,
+                maxLength: _maxNome,
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp(r'\d')),
+                  PrimeiraLetraMaiusculaInputFormatter(),
                 ],
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Nome da pessoa',
+                  hintText: 'Ex.: Maria Silva',
+                  prefixIcon: Icon(Icons.person_outline_rounded),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().length < 2) {
+                    return 'Informe um nome para continuar.';
+                  }
+                  return null;
+                },
+              ),
 
+              const SizedBox(height: AppSpacing.md),
+
+              TextFormField(
+                controller: _telefone,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [TelefoneBrInputFormatter()],
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => _enviar(),
+                decoration: const InputDecoration(
+                  labelText: 'Telefone',
+                  hintText: '(00) 00000-0000',
+                  prefixIcon: Icon(Icons.phone_outlined),
+                ),
+                validator: (value) {
+                  if (TrustedContact.normalizarTelefoneBr(value ?? '') == null) {
+                    return 'Informe um telefone válido.';
+                  }
+                  return null;
+                },
+              ),
+
+              if (_erro != null) ...[
                 const SizedBox(height: AppSpacing.sm),
+                // liveRegion: o leitor de tela anuncia o erro assim que aparece.
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    _erro!,
+                    style: textos.bodyMedium?.copyWith(color: AppColors.emergency),
+                  ),
+                ),
+              ],
 
-                // ── Botão secundário ────────────────────────────────────
-                TextButton(
-                  onPressed: _continuar,
-                  child: Text(_contatos.isEmpty ? 'Pular por agora' : 'Continuar'),
+              const SizedBox(height: AppSpacing.xl),
+
+              FilledButton.icon(
+                onPressed: _salvando ? null : _enviar,
+                icon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
+                label: const Text('Adicionar'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Widget: Cabeçalho ──────────────────────────────────────────────────────
+
+class _StepHeader extends StatelessWidget {
+  const _StepHeader({required this.currentStep, required this.totalSteps});
+
+  /// `null` esconde o progresso (tela aberta pela Home).
+  final int? currentStep;
+  final int totalSteps;
+
+  @override
+  Widget build(BuildContext context) {
+    final passo = currentStep;
+    return Row(
+      children: [
+        // Botão voltar, só quando há para onde voltar
+        if (Navigator.of(context).canPop()) ...[
+          Material(
+            color: AppColors.pinkSoft,
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              onTap: () => Navigator.maybePop(context),
+              borderRadius: BorderRadius.circular(12),
+              child: const SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  Icons.arrow_back_rounded,
+                  color: AppColors.pink,
+                  size: 20,
+                  semanticLabel: 'Voltar',
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+        ],
+
+        // Barra de progresso
+        if (passo != null)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Passo $passo de $totalSteps',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Row(
+                    children: List.generate(totalSteps, (index) {
+                      final isActive = index < passo;
+                      return Expanded(
+                        child: Container(
+                          height: 4,
+                          margin: EdgeInsets.only(right: index < totalSteps - 1 ? AppSpacing.xxs : 0),
+                          decoration: BoxDecoration(
+                            color: isActive ? AppColors.pink : AppColors.border,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-      ),
+      ],
     );
   }
 }
@@ -357,6 +537,52 @@ class _ContactTile extends StatelessWidget {
   }
 }
 
+// ── Widget: Lista vazia ────────────────────────────────────────────────────
+
+class _ListaVazia extends StatelessWidget {
+  const _ListaVazia();
+
+  @override
+  Widget build(BuildContext context) {
+    final textos = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.pinkSoft,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.people_alt_rounded, color: AppColors.pink),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Ninguém na lista ainda', style: textos.titleSmall),
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  'Adicione alguém em quem você confia usando os botões abaixo.',
+                  style: textos.bodySmall?.copyWith(height: 1.4, color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ── Widget: Aviso de limite ────────────────────────────────────────────────
 
 class _LimitNotice extends StatelessWidget {
@@ -379,119 +605,29 @@ class _LimitNotice extends StatelessWidget {
   }
 }
 
-// ── Widget: Cabeçalho com barra de progresso ────────────────────────────────
+// ── Widget: Aviso de privacidade ───────────────────────────────────────────
 
-class _StepHeader extends StatelessWidget {
-  const _StepHeader({required this.currentStep, required this.totalSteps});
-
-  final int currentStep;
-  final int totalSteps;
+class _AvisoPrivacidade extends StatelessWidget {
+  const _AvisoPrivacidade();
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Botão voltar
-        Material(
-          color: AppColors.pinkSoft,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            onTap: () => Navigator.maybePop(context),
-            borderRadius: BorderRadius.circular(12),
-            child: const SizedBox(
-              width: 40,
-              height: 40,
-              child: Icon(
-                Icons.arrow_back_rounded,
-                color: AppColors.pink,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
-
-        const SizedBox(width: AppSpacing.md),
-
-        // Barra de progresso
+        const Icon(Icons.lock_outline_rounded, size: 18, color: AppColors.textSecondary),
+        const SizedBox(width: AppSpacing.xs),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Passo $currentStep de $totalSteps',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Row(
-                  children: List.generate(totalSteps, (index) {
-                    final isActive = index < currentStep;
-                    return Expanded(
-                      child: Container(
-                        height: 4,
-                        margin: EdgeInsets.only(right: index < totalSteps - 1 ? AppSpacing.xxs : 0),
-                        decoration: BoxDecoration(
-                          color: isActive ? AppColors.pink : AppColors.border,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    );
-                  }),
+          child: Text(
+            'A lista fica só neste aparelho. Da agenda, o app só lê quem você escolher. '
+            'Você terá controle antes de qualquer compartilhamento.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  height: 1.5,
+                  color: AppColors.textSecondary,
                 ),
-              ),
-            ],
           ),
         ),
       ],
-    );
-  }
-}
-
-// ── Widget: Banner de consentimento ────────────────────────────────────────
-
-class _ConsentBanner extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.blueSoft,
-        borderRadius: BorderRadius.circular(16),
-        border: const Border(
-          left: BorderSide(color: AppColors.primary, width: 3),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 1),
-            child: Icon(
-              Icons.info_outline_rounded,
-              color: AppColors.primary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              'Você terá controle antes de qualquer compartilhamento. '
-              'Esta versão ainda não envia localização, SMS ou WhatsApp. '
-              'Da agenda, o app só lê o contato que você escolher, e a lista '
-              'fica salva apenas neste aparelho.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textPrimary,
-                    height: 1.55,
-                    fontSize: 13,
-                  ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
