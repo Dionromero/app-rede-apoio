@@ -117,6 +117,32 @@ void main() {
       expect(find.text('Continuar'), findsOneWidget);
     });
 
+    testWidgets('nome não aceita números e para em 30 caracteres', (tester) async {
+      await _abrir(tester);
+      await _tocar(tester, find.text('Digitar número'));
+      final campoNome = find.widgetWithText(TextFormField, 'Nome da pessoa');
+
+      await tester.enterText(campoNome, 'ana2');
+      expect(find.text('Ana'), findsOneWidget);
+
+      await tester.enterText(campoNome, 'b' * 40);
+      await tester.pump(); // redesenha a tela para o contador atualizar
+      expect(find.text('B${'b' * 29}'), findsOneWidget);
+      expect(find.text('30/30'), findsOneWidget);
+    });
+
+    testWidgets('nome vindo da agenda chega sem números e com até 30 caracteres', (tester) async {
+      _simularAgenda({
+        'fullName': 'João   Trabalho 2 ${'x' * 40}',
+        'selectedPhoneNumber': '(41) 98888-7777',
+      });
+      await _abrir(tester);
+      await _tocar(tester, find.text('Escolher da agenda'));
+
+      // Sem o "2", espaços repetidos viram um só, e corta em 30 caracteres.
+      expect(find.text('João Trabalho ${'x' * 16}'), findsOneWidget);
+    });
+
     testWidgets('número repetido: o erro aparece no painel, que continua aberto', (tester) async {
       _salvos(const [TrustedContact(name: 'Ana', phone: '5541999998888')]);
       await _abrir(tester);

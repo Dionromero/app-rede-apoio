@@ -11,6 +11,20 @@ import '../../../home/presentation/pages/home_page.dart';
 import '../../data/trusted_contact_repository.dart';
 import '../../domain/trusted_contact.dart';
 
+/// Tamanho máximo do nome da pessoa de confiança.
+const _maxNome = 30;
+
+/// Aplica ao nome vindo da agenda as mesmas regras do campo: sem números e
+/// até [_maxNome] caracteres.
+String _limparNome(String nome) => nome
+    .replaceAll(RegExp(r'\d'), '')
+    .replaceAll(RegExp(r'\s+'), ' ')
+    .trim()
+    .characters
+    .take(_maxNome)
+    .toString()
+    .trimRight();
+
 class TrustedContactPage extends StatefulWidget {
   const TrustedContactPage({super.key, this.repository});
 
@@ -83,7 +97,7 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
       return;
     }
     await _abrirFormulario(
-      nome: (escolhido.fullName ?? '').trim(),
+      nome: _limparNome(escolhido.fullName ?? ''),
       telefone: TrustedContact(name: '', phone: numero).formattedPhone,
     );
   }
@@ -323,7 +337,11 @@ class _FormularioPessoaState extends State<_FormularioPessoa> {
                 controller: _nome,
                 autofocus: !widget.daAgenda,
                 textCapitalization: TextCapitalization.words,
-                inputFormatters: [PrimeiraLetraMaiusculaInputFormatter()],
+                maxLength: _maxNome,
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp(r'\d')),
+                  PrimeiraLetraMaiusculaInputFormatter(),
+                ],
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   labelText: 'Nome da pessoa',
