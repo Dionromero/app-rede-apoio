@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícone do modo discreto: um bloco de notas genérico. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_discreto_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_discreto_foreground"/>
+    <monochrome android:drawable="@mipmap/ic_launcher_discreto_monochrome"/>
+</adaptive-icon>

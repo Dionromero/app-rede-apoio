@@ -48,3 +48,6 @@ backend/supabase/.branches/
 
 # Logs locais de execução
 run_log*.txt
+
+# Gerados por IA
+Claude outputs/

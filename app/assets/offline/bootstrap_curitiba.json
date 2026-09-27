@@ -1,7 +1,7 @@
 {
     "guides": [
         {
-            "icon": "🔴",
+            "icon": "alerta",
             "slug": "emergencia",
             "title": "Em caso de emergência",
             "content": "# Em caso de emergência\n\n## Risco imediato? Ligue 190.\nO **190** é o número da Polícia Militar. A ligação é gratuita e funciona 24 horas.\n\n### O que falar\n- Diga que precisa de ajuda.\n- Informe seu endereço ou um ponto de referência, se souber.\n- Descreva brevemente a situação.\n\n## Precisa de orientação? Ligue 180.\nO **Ligue 180** é a Central de Atendimento à Mulher:\n- Funciona **24 horas**, **7 dias por semana**.\n- A ligação é **gratuita e sigilosa**.\n- Também atende por WhatsApp.\n- Orienta sobre direitos, serviços de proteção e como denunciar.\n\n## Está ferida?\nLigue **192** (SAMU) ou procure o hospital mais próximo.\n\n## Não está em risco imediato?\nVeja o guia **Plano de segurança**. Cada passo conta.",
@@ -14,7 +14,7 @@
             "source_name": "Lei nº 11.340/2006 (Lei Maria da Penha)"
         },
         {
-            "icon": "🧭",
+            "icon": "bussola",
             "slug": "plano-de-seguranca",
             "title": "Plano de segurança",
             "content": "# Plano de segurança\n\nUm plano de segurança ajuda a agir mais rápido se precisar sair de casa.\n\n## Combine com alguém de confiança\n- Escolha uma pessoa que possa ser avisada.\n- Combinem uma **palavra-código** que signifique \"preciso de ajuda\".\n\n## Separe o essencial\nSe for possível sem colocar você em risco, deixe em um lugar seguro ou com alguém de confiança:\n- documentos (RG, CPF, certidões, cartão do SUS, documentos dos filhos);\n- remédios de uso contínuo;\n- cópia de chaves, um pouco de dinheiro e um carregador de celular.\n\n## Conheça os lugares de apoio\nVeja no app os serviços perto de você e anote o endereço da **Casa da Mulher Brasileira** ou do centro de referência da sua cidade.\n\n## Cuidado com o celular\nVeja o guia **Segurança digital no celular**.\n\n> Em risco imediato, ligue **190**. Para orientação, ligue **180**.",
@@ -27,7 +27,7 @@
             "source_name": null
         },
         {
-            "icon": "📋",
+            "icon": "documento",
             "slug": "boletim-de-ocorrencia",
             "title": "Como fazer um Boletim de Ocorrência",
             "content": "# Como fazer um Boletim de Ocorrência\n\n## Presencial\n1. Vá a uma **Delegacia da Mulher (DEAM)** ou a qualquer delegacia.\n2. Relate o ocorrido com o máximo de detalhes.\n3. Peça a **medida protetiva** no momento do registro (é seu direito).\n4. Guarde uma cópia do B.O.\n\n## Online\nMuitos estados contam com Delegacia Eletrônica para casos de violência doméstica.\n> **Atenção:** Em casos de risco iminente ou agressão física recente, vá presencialmente ou acione o 190.",
@@ -40,7 +40,7 @@
             "source_name": "Lei nº 11.340/2006 (Lei Maria da Penha)"
         },
         {
-            "icon": "🛡️",
+            "icon": "escudo",
             "slug": "medida-protetiva",
             "title": "Medida Protetiva de Urgência",
             "content": "# Medida Protetiva de Urgência\n\n## O que é?\nUma ordem judicial que protege você do agressor, determinando:\n- Afastamento do agressor do lar\n- Proibição de contato e aproximação\n- Distância mínima obrigatória\n\n## Como pedir?\n- Na delegacia ao fazer o B.O.\n- Na Defensoria Pública\n- No Ministério Público\n\n**Você não precisa de advogado particular para pedir medida protetiva.**",
@@ -53,7 +53,7 @@
             "source_name": "Lei nº 11.340/2006 (Lei Maria da Penha)"
         },
         {
-            "icon": "⚖️",
+            "icon": "balanca",
             "slug": "lei-maria-da-penha",
             "title": "Seus Direitos — Lei Maria da Penha",
             "content": "# Lei Maria da Penha (Lei nº 11.340/2006)\n\n## Tipos de violência reconhecidos:\n- **Física:** agressões corporais, empurrões, socos.\n- **Psicológica:** humilhação, isolamento, ameaça, perseguição.\n- **Sexual:** relação sem consentimento, coerção.\n- **Patrimonial:** retenção de documentos, destruição de bens, controle financeiro.\n- **Moral:** calúnia, injúria e difamação.",
@@ -66,7 +66,7 @@
             "source_name": "Lei nº 11.340/2006 (Lei Maria da Penha)"
         },
         {
-            "icon": "💰",
+            "icon": "carteira",
             "slug": "apoio-financeiro",
             "title": "Apoio Financeiro e Benefícios",
             "content": "# Apoio financeiro\n\n## CRAS — porta de entrada\nProcure o CRAS para se inscrever no **CadÚnico** e acessar programas sociais, como o Bolsa Família.\n\n## Direitos previstos na Lei Maria da Penha\n- **Manutenção do emprego:** quando for preciso se afastar do trabalho, a lei garante a manutenção do vínculo trabalhista por até **6 meses** (art. 9º, § 2º, II).\n- **Auxílio-aluguel:** pode ser determinado pelo juiz como medida protetiva para mulheres em situação de vulnerabilidade social e econômica.\n\nProcure a **Defensoria Pública** para saber como pedir e sobre a remuneração durante o afastamento.",
@@ -79,7 +79,7 @@
             "source_name": "Lei nº 11.340/2006 (Lei Maria da Penha)"
         },
         {
-            "icon": "📱",
+            "icon": "celular",
             "slug": "seguranca-digital",
             "title": "Segurança Digital no Celular",
             "content": "# Segurança Digital\n\n- Apague históricos e registros de pesquisas sobre suporte e violência.\n- Use guias anônimas.\n- Ative verificação em duas etapas no WhatsApp.\n- Esteja atenta a aplicativos espiões.\n- **Aviso:** Nenhum aplicativo é 100% invisível em um aparelho nas mãos de terceiros.",

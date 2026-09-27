@@ -59,6 +59,15 @@ Variáveis de build (`--dart-define`): `TRACKING_PAGE_URL` (liga a localização
 | `flutter_secure_storage` | Pessoas de confiança criptografadas | Keystore/Keychain; nada vai ao servidor |
 | `flutter_native_contact_picker` | "Escolher da agenda" na tela de pessoas de confiança | Seletor do sistema: sem permissão de contatos e sem rede; o app recebe só o número escolhido. BSD-3. Pacote pequeno (v0.0.12, autor não verificado); código revisado em 26/09/2026 |
 | `shared_preferences` | Cache do conteúdo (canais e guias) | Só conteúdo público |
+| `flutter_animate` | Animações de entrada, pinos e painéis | Equivalente ao Framer Motion no Flutter |
+
+## Sistema visual
+
+- Cores em `core/theme/app_colors.dart` (vinho, azul-petróleo, musgo, areia). Os nomes antigos (`pink`, `primary`...) apontam para os novos tons.
+- Títulos: `AppFonts.serif(size: ...)` (Fraunces). Texto: Atkinson Hyperlegible, padrão do tema.
+- Toque com resposta física: envolva em `Pressable` em vez de `InkWell`.
+- Durações e curvas: `AppShape.rapido`, `medio`, `lento` e `AppShape.curva`.
+- Abas de categoria: `CategoryTabs`.
 
 ## Cuidados conhecidos
 

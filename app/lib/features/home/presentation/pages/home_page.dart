@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../../core/config/app_config.dart';
+import '../../../../core/services/discreet_mode_service.dart';
 import '../../../../core/services/emergency_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/share_location_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/widgets/action_card.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/support_network_map.dart';
+import '../../../discreet_mode/presentation/pages/discreet_mode_page.dart';
 import '../../../guidance/presentation/pages/guidance_page.dart';
 import '../../../support_network/data/support_network_service.dart';
 import '../../../support_network/domain/models/support_institution.dart';
 import '../../../support_network/presentation/pages/support_map_page.dart';
 import '../../../support_network/presentation/pages/support_network_page.dart';
 import '../../../trusted_contact/presentation/pages/trusted_contact_page.dart';
+import '../widgets/filtros_mapa.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,7 +32,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String _filter = 'todos';
+  FiltroMapa _filtro = const FiltroMapa();
 
   // ── Mapa ──────────────────────────────────────────────────────────────────
   List<SupportInstitution> _instituicoes = [];
@@ -70,335 +75,284 @@ class _HomePageState extends State<HomePage> {
     setState(() => _carregandoLocalizacao = false);
 
     if (posicao == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(erro ?? 'Não foi possível obter sua localização agora.'),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      _aviso(erro ?? 'Não foi possível obter sua localização agora.');
       return;
     }
     _posicao = posicao;
     await _carregarMapa();
   }
 
-  List<SupportInstitution> get _instituicoesFiltradas {
-    final categorias = SupportNetworkPage.categoriasFiltro
-        .firstWhere((c) => c.id == _filter)
-        .categorias;
-    if (categorias.isEmpty) return _instituicoes;
-    return _instituicoes.where((i) => categorias.contains(i.category)).toList();
+  List<SupportInstitution> get _instituicoesFiltradas => _filtro.aplicar(_instituicoes, posicao: _posicao);
+
+  /// "Mais próximos": liga/desliga. Sem posição, pede a localização primeiro.
+  Future<void> _alternarProximos() async {
+    if (_posicao == null) {
+      setState(() => _filtro = _filtro.copyWith(soProximos: true));
+      await _usarMinhaLocalizacao();
+      return;
+    }
+    setState(() => _filtro = _filtro.copyWith(soProximos: !_filtro.soProximos));
   }
 
-  void _ampliarMapa() {
+  Future<void> _abrirFiltros() async {
+    final novo = await mostrarFolhaFiltros(context, _filtro);
+    if (novo != null && mounted) setState(() => _filtro = novo);
+  }
+
+  /// Abre o mapa em tela cheia (opcionalmente já com um local escolhido).
+  void _explorarMapa([List<SupportInstitution>? grupo]) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => SupportMapPage(
-          instituicoes: _instituicoesFiltradas,
+          instituicoes: _instituicoes,
           posicaoUsuaria: _posicao,
+          categoriaInicial: _filtro.categoria,
+          selecionadaInicial: grupo,
         ),
       ),
     );
   }
 
-  /// Abre a Rede de Apoio já filtrada pelo chip escolhido na tela inicial.
+  /// Abre a Rede de Apoio (lista) já filtrada pela aba escolhida.
   void _abrirRedeDeApoio() {
     Navigator.push(
       context,
       MaterialPageRoute(
         settings: const RouteSettings(name: SupportNetworkPage.routeName),
-        builder: (_) => SupportNetworkPage(categoriaInicial: _filter),
+        builder: (_) => SupportNetworkPage(categoriaInicial: _filtro.categoria),
       ),
     );
   }
 
-  void _showPending(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature é uma demonstração visual nesta versão.'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+  void _aviso(String texto, {Duration duracao = const Duration(seconds: 4)}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(texto), duration: duracao));
   }
 
   Future<void> _enviarLocalizacao() async {
-    // Mostrar indicação de carregamento
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Row(
-          children: [
-            SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(width: AppSpacing.sm),
-            Text('Obtendo localização…'),
-          ],
-        ),
-        duration: const Duration(seconds: 10),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-
+    _aviso('Obtendo sua localização…', duracao: const Duration(seconds: 10));
     final resultado = await ShareLocationService.enviarParaQualquerContato();
-
     if (!mounted) return;
-
-    // Limpar snackbar de carregamento
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     switch (resultado) {
       case ShareResult.sucesso:
-        // WhatsApp aberto com sucesso — nada mais a fazer
         break;
       case ShareResult.semLocalizacao:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Não foi possível obter sua localização. '
-              'Verifique se o GPS está ativo e se a permissão foi concedida.',
-            ),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            duration: const Duration(seconds: 5),
-          ),
-        );
+        _aviso('Não foi possível obter sua localização. Verifique se o GPS está ativo e se a permissão foi concedida.',
+            duracao: const Duration(seconds: 5));
       case ShareResult.whatsappIndisponivel:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'WhatsApp não encontrado. Verifique se está instalado.',
-            ),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
+        _aviso('WhatsApp não encontrado. Verifique se está instalado.');
       case ShareResult.falhaGeral:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Não foi possível compartilhar a localização neste momento.',
-            ),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
+        _aviso('Não foi possível compartilhar a localização neste momento.');
     }
+  }
+
+  String get _saudacao {
+    final h = DateTime.now().hour;
+    if (h < 5) return 'Boa noite.';
+    if (h < 12) return 'Bom dia.';
+    if (h < 18) return 'Boa tarde.';
+    return 'Boa noite.';
+  }
+
+  String get _legendaMapa {
+    if (_mapaOffline) return 'Sem conexão: mostrando os locais salvos no aparelho.';
+    if (_foraDoRaio) return 'Nada a até ${AppConfig.raioBuscaKm.round()} km. Mostrando os mais próximos.';
+    final n = _instituicoesFiltradas.length;
+    if (n == 0) return 'Nenhum local com esses filtros. Toque em "Filtros" para mudar.';
+    if (_posicao != null && _filtro.soProximos) {
+      return n == 1 ? 'O local mais próximo de você. Toque no pino.' : 'Os $n locais mais próximos de você. Toque num pino.';
+    }
+    if (_posicao != null) return '$n locais a até ${AppConfig.raioBuscaKm.round()} km. Toque num pino.';
+    return 'Toque em "Mais próximos" para ver só o que está perto de você.';
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+
+    // Cada bloco entra com um pequeno atraso: a tela "se monta" com calma.
+    Widget entrada(Widget child, int ordem) => child
+        .animate(delay: (70 * ordem).ms)
+        .fadeIn(duration: 420.ms, curve: AppShape.curva)
+        .slideY(begin: 0.06, duration: 420.ms, curve: AppShape.curva);
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-      ),
+      value: SystemUiOverlayStyle.dark,
       child: Scaffold(
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.sm, AppSpacing.screen, AppSpacing.xxl),
             children: [
               // ── Cabeçalho ────────────────────────────────────────────
-              Row(
-                children: [
-                  // Logo / ícone do app
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.pinkSoft,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.volunteer_activism_rounded,
-                      color: AppColors.pink,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      'Rede de Apoio',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 20,
-                          ),
-                    ),
-                  ),
-                  // Botão de saída rápida
-                  Material(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      onTap: () => _showPending('Saída rápida'),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border, width: 1.5),
-                        ),
-                        child: const Icon(
-                          Icons.close_rounded,
-                          color: AppColors.textSecondary,
-                          size: 20,
-                        ),
+              entrada(
+                Row(
+                  children: [
+                    const _Monograma(),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'REDE DE APOIO',
+                        style: t.labelSmall?.copyWith(color: AppColors.textPrimary, letterSpacing: 1.6),
                       ),
                     ),
-                  ),
-                ],
+                    _SaidaRapida(onTap: () => _aviso('Saída rápida: em construção nesta versão.')),
+                  ],
+                ),
+                0,
               ),
-
               const SizedBox(height: AppSpacing.xl),
 
-              // ── Título da seção ───────────────────────────────────────
-              Text(
-                'Apoio perto de você',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Encontre serviços e canais de orientação. Você decide cada próximo passo.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-
-              const SizedBox(height: AppSpacing.md),
-
-              // ── Filtros ───────────────────────────────────────────────
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: SupportNetworkPage.categoriasFiltro
-                      .map(
-                        (cat) => Padding(
-                          padding: const EdgeInsets.only(right: AppSpacing.xs),
-                          child: _FilterChip(
-                            label: cat.label,
-                            selected: _filter == cat.id,
-                            onSelected: () => setState(() => _filter = cat.id),
-                          ),
-                        ),
-                      )
-                      .toList(),
+              // ── Saudação ─────────────────────────────────────────────
+              entrada(Text(_saudacao, style: AppFonts.serif(size: 38, peso: 520)), 1),
+              const SizedBox(height: 6),
+              entrada(
+                Text(
+                  'Você não está sozinha. Aqui estão caminhos de apoio perto de você, e cada passo é decisão sua.',
+                  style: t.bodyLarge,
                 ),
+                2,
               ),
+              const SizedBox(height: AppSpacing.xl),
 
-              const SizedBox(height: AppSpacing.md),
+              // ── Emergência ───────────────────────────────────────────
+              entrada(_BotaoEmergencia(onTap: () => EmergencyService.confirmarELigar190(context)), 3),
+              const SizedBox(height: AppSpacing.xxl),
 
-              // ── Mapa da rede de apoio ─────────────────────────────────
-              if (_carregandoMapa)
-                Container(
-                  height: 280,
-                  decoration: BoxDecoration(
-                    color: AppColors.blueSoft,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  alignment: Alignment.center,
-                  child: const CircularProgressIndicator(strokeWidth: 2.5),
-                )
-              else
-                SupportNetworkMap(
-                  altura: 280,
-                  instituicoes: _instituicoesFiltradas,
-                  posicaoUsuaria: _posicao,
+              // ── Mapa ─────────────────────────────────────────────────
+              entrada(
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(child: Text('Apoio perto de você', style: t.titleLarge)),
+                    TextButton(
+                      onPressed: _abrirRedeDeApoio,
+                      // O tema dá largura infinita aos botões; dentro de Row, limitar.
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(0, 36),
+                        foregroundColor: AppColors.wine,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                      child: const Text('Ver lista'),
+                    ),
+                  ],
+                ),
+                4,
+              ),
+              const SizedBox(height: 4),
+              entrada(
+                BarraFiltrosMapa(
+                  filtro: _filtro,
+                  temPosicao: _posicao != null,
                   carregandoLocalizacao: _carregandoLocalizacao,
-                  onUsarLocalizacao: _usarMinhaLocalizacao,
-                  onAmpliar: _ampliarMapa,
-                  onSelecionar: (grupo) => SupportMapPage.mostrarGrupo(context, grupo),
+                  onProximos: _alternarProximos,
+                  onFiltros: _abrirFiltros,
                 ),
-              const SizedBox(height: AppSpacing.xs),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _mapaOffline
-                          ? 'Sem conexão: mostrando locais salvos no aparelho.'
-                          : _foraDoRaio
-                              ? 'Nada a até ${AppConfig.raioBuscaKm.round()} km: mostrando os mais próximos.'
-                              : _posicao != null
-                              ? 'Locais a até ${AppConfig.raioBuscaKm.round()} km. Toque em um pino.'
-                              : 'Use o botão de localização do mapa para ver o que está perto.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: _mapaOffline ? const Color(0xFFE65100) : AppColors.textSecondary,
-                          ),
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: _abrirRedeDeApoio,
-                    // O tema deixa botões com largura infinita; dentro de Row isso quebra.
-                    style: TextButton.styleFrom(minimumSize: const Size(0, 40)),
-                    icon: const Icon(Icons.list_rounded, size: 18),
-                    label: const Text('Ver lista'),
-                  ),
-                ],
+                4,
               ),
-
-              const SizedBox(height: AppSpacing.md),
-
-              // ── Card de Emergência 190 ────────────────────────────────
-              _EmergencyCard(
-                onTap: () => EmergencyService.confirmarELigar190(context),
-              ),
-
-              const SizedBox(height: AppSpacing.xl),
-
-              // ── Outras opções ─────────────────────────────────────────
-              Text(
-                'Outras opções',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-
               const SizedBox(height: AppSpacing.sm),
-
-              ActionCard(
-                icon: Icons.people_alt_rounded,
-                title: 'Pessoas de confiança',
-                description: 'Cadastrar ou revisar até 5 contatos escolhidos.',
-                accentColor: AppColors.pink,
-                iconBackgroundColor: AppColors.pinkSoft,
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  TrustedContactPage.routeName,
+              entrada(
+                AnimatedSwitcher(
+                  duration: AppShape.lento,
+                  child: _carregandoMapa
+                      ? Container(
+                          key: const ValueKey('carregando'),
+                          height: 300,
+                          decoration: BoxDecoration(
+                            color: AppColors.sandDeep,
+                            borderRadius: BorderRadius.circular(AppShape.radiusLg),
+                          ),
+                        ).animate(onPlay: (c) => c.repeat()).shimmer(duration: 1400.ms, color: AppColors.paper)
+                      : SupportNetworkMap(
+                          key: const ValueKey('mapa'),
+                          altura: 300,
+                          instituicoes: _instituicoesFiltradas,
+                          posicaoUsuaria: _posicao,
+                          carregandoLocalizacao: _carregandoLocalizacao,
+                          onUsarLocalizacao: _usarMinhaLocalizacao,
+                          onAmpliar: _explorarMapa,
+                          enquadrarAoMudar: true,
+                          onSelecionar: _explorarMapa,
+                          onAjustarPosicao: (p) {
+                            _posicao = p;
+                            _carregarMapa();
+                          },
+                        ),
+                ),
+                5,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              AnimatedSwitcher(
+                duration: AppShape.medio,
+                child: Text(
+                  _legendaMapa,
+                  key: ValueKey(_legendaMapa),
+                  style: t.bodySmall?.copyWith(color: _mapaOffline ? AppColors.emergency : null),
                 ),
               ),
-              ActionCard(
-                icon: Icons.location_on_rounded,
-                title: 'Enviar localização',
-                description: 'Compartilhar sua posição atual via WhatsApp.',
-                accentColor: const Color(0xFF2E7D32),
-                iconBackgroundColor: const Color(0xFFE8F5E9),
-                onTap: () => _enviarLocalizacao(),
+              const SizedBox(height: AppSpacing.xxl),
+
+              // ── Mais caminhos ────────────────────────────────────────
+              entrada(Text('Mais caminhos', style: t.titleLarge), 6),
+              const SizedBox(height: AppSpacing.sm),
+              entrada(
+                _ListaDeAcoes(
+                  acoes: [
+                    _Acao(
+                      icon: Icons.favorite_border_rounded,
+                      cor: AppColors.wine,
+                      fundo: AppColors.wineSoft,
+                      titulo: 'Pessoas de confiança',
+                      descricao: 'Cadastre ou revise até 5 contatos.',
+                      onTap: () => Navigator.pushNamed(context, TrustedContactPage.routeName),
+                    ),
+                    _Acao(
+                      icon: Icons.near_me_outlined,
+                      cor: AppColors.moss,
+                      fundo: AppColors.mossSoft,
+                      titulo: 'Enviar minha localização',
+                      descricao: 'Abre o WhatsApp com sua posição atual.',
+                      onTap: _enviarLocalizacao,
+                    ),
+                    _Acao(
+                      icon: Icons.support_agent_outlined,
+                      cor: AppColors.ink,
+                      fundo: AppColors.inkSoft,
+                      titulo: 'Ligue 180',
+                      descricao: 'Orientação e denúncia, 24 horas, gratuito.',
+                      onTap: () => EmergencyService.confirmarELigar180(context),
+                    ),
+                    _Acao(
+                      icon: Icons.menu_book_outlined,
+                      cor: AppColors.textPrimary,
+                      fundo: AppColors.sandDeep,
+                      titulo: 'Direitos e orientações',
+                      descricao: 'Medida protetiva, BO, plano de segurança.',
+                      onTap: () => Navigator.pushNamed(context, GuidancePage.routeName),
+                    ),
+                    if (DiscreetModeService.suportado)
+                      _Acao(
+                        icon: Icons.visibility_off_outlined,
+                        cor: AppColors.ink,
+                        fundo: AppColors.inkSoft,
+                        titulo: 'Modo discreto',
+                        descricao: 'Troque o ícone do app por um disfarce.',
+                        onTap: () => Navigator.pushNamed(context, DiscreetModePage.routeName),
+                      ),
+                  ],
+                ),
+                7,
               ),
-              ActionCard(
-                icon: Icons.support_agent_rounded,
-                title: 'Ligue 180',
-                description: 'Canal oficial de orientação e denúncia.',
-                accentColor: AppColors.primary,
-                iconBackgroundColor: AppColors.blueSoft,
-                onTap: () => EmergencyService.confirmarELigar180(context),
-              ),
-              ActionCard(
-                icon: Icons.menu_book_rounded,
-                title: 'Orientações e direitos',
-                description: 'Informações sobre proteção e atendimento.',
-                onTap: () => Navigator.pushNamed(context, GuidancePage.routeName),
+              const SizedBox(height: AppSpacing.xl),
+              entrada(
+                Text(
+                  'Este app orienta e conecta. Ele não substitui o 190, o 180 nem o atendimento especializado.',
+                  style: t.bodySmall?.copyWith(color: AppColors.textHint),
+                ),
+                8,
               ),
             ],
           ),
@@ -408,124 +362,195 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// ── Widget: Chip de filtro ──────────────────────────────────────────────────
+// ── Peças da tela ────────────────────────────────────────────────────────────
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onSelected,
-  });
+class _Monograma extends StatelessWidget {
+  const _Monograma();
 
-  final String label;
-  final bool selected;
-  final VoidCallback onSelected;
-
+  /// Símbolo da marca: a mulher em perfil pedindo silêncio.
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onSelected,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.blueSoft : AppColors.surface,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: selected ? AppColors.primary : AppColors.border,
-            width: 1.5,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-            color: selected ? AppColors.primary : AppColors.textSecondary,
-          ),
-        ),
+    return ExcludeSemantics(
+      child: ClipOval(
+        child: Image.asset('assets/brand/simbolo-mono-512.png', width: 36, height: 36, filterQuality: FilterQuality.medium),
       ),
     );
   }
 }
 
-// ── Widget: Card de Emergência ──────────────────────────────────────────────
-
-class _EmergencyCard extends StatelessWidget {
-  const _EmergencyCard({required this.onTap});
+class _SaidaRapida extends StatelessWidget {
+  const _SaidaRapida({required this.onTap});
 
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.emergency,
-      borderRadius: BorderRadius.circular(22),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        splashColor: Colors.white.withValues(alpha: 0.12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
-          child: Row(
-            children: [
-              // Ícone com fundo semi-transparente
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.phone_in_talk_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
+    return Pressable(
+      onTap: onTap,
+      semanticsLabel: 'Saída rápida',
+      escala: 0.94,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.paper,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.close_rounded, size: 16, color: AppColors.textPrimary),
+            SizedBox(width: 6),
+            Text('Sair', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BotaoEmergencia extends StatelessWidget {
+  const _BotaoEmergencia({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: onTap,
+      semanticsLabel: 'Emergência: ligar 190, Polícia Militar',
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 18, 16, 18),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.emergency, AppColors.emergencyDeep],
+          ),
+          borderRadius: BorderRadius.circular(AppShape.radiusLg),
+          boxShadow: [
+            BoxShadow(color: AppColors.emergency.withValues(alpha: 0.28), blurRadius: 18, offset: const Offset(0, 8)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'EM RISCO AGORA',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.78),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text('Ligar 190', style: AppFonts.serif(size: 30, peso: 600, color: Colors.white)),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Polícia Militar. Você confirma antes de ligar.',
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13.5),
+                  ),
+                ],
               ),
-              const SizedBox(width: AppSpacing.md),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.16),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+              ),
+              child: const Icon(Icons.call_rounded, color: Colors.white, size: 24),
+            )
+                .animate(onPlay: (c) => c.repeat(reverse: true))
+                .scaleXY(begin: 1, end: 1.06, duration: 1400.ms, curve: Curves.easeInOut),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Acao {
+  const _Acao({
+    required this.icon,
+    required this.cor,
+    required this.fundo,
+    required this.titulo,
+    required this.descricao,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color cor;
+  final Color fundo;
+  final String titulo;
+  final String descricao;
+  final VoidCallback onTap;
+}
+
+/// Lista de ações num só bloco, separada por linhas finas (sem "cards" soltos).
+class _ListaDeAcoes extends StatelessWidget {
+  const _ListaDeAcoes({required this.acoes});
+
+  final List<_Acao> acoes;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.paper,
+        borderRadius: BorderRadius.circular(AppShape.radiusLg),
+        border: Border.all(color: AppColors.hairline),
+      ),
+      child: Column(
+        children: [
+          for (final (i, a) in acoes.indexed) ...[
+            if (i > 0) const Padding(padding: EdgeInsets.only(left: 72), child: Divider()),
+            Pressable(
+              onTap: a.onTap,
+              escala: 0.985,
+              semanticsLabel: a.titulo,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+                child: Row(
                   children: [
-                    Text(
-                      'Emergência — 190',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18,
-                        height: 1.2,
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(color: a.fundo, shape: BoxShape.circle),
+                      child: Icon(a.icon, color: a.cor, size: 21),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            a.titulo,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(a.descricao, style: Theme.of(context).textTheme.bodySmall),
+                        ],
                       ),
                     ),
-                    SizedBox(height: AppSpacing.xxs),
-                    Text(
-                      'Abrir ligação para a Polícia Militar.',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        height: 1.4,
-                      ),
-                    ),
+                    const Icon(Icons.arrow_forward_rounded, size: 18, color: AppColors.textHint),
                   ],
                 ),
               ),
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.arrow_forward_rounded,
-                  color: Colors.white,
-                  size: 18,
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          ],
+        ],
       ),
     );
   }

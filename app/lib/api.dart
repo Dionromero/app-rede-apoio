@@ -24,6 +24,8 @@ export 'core/services/share_location_service.dart';
 // Rede de apoio (instituições próximas e busca)
 export 'features/support_network/data/support_network_service.dart';
 export 'features/support_network/domain/models/support_institution.dart';
+export 'features/support_network/data/route_service.dart';
+export 'features/support_network/domain/models/route_plan.dart';
 
 // Pessoa de confiança (salva só no aparelho)
 export 'features/trusted_contact/data/trusted_contact_repository.dart';

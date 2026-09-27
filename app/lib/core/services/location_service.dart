@@ -85,6 +85,36 @@ class LocationService {
     }
   }
 
+  /// Acima desta margem de erro (metros) a posição é tratada como aproximada:
+  /// o mapa mostra o aviso e oferece "Ajustar no mapa". Acontece no
+  /// navegador do computador (posição estimada por Wi-Fi ou IP) e com GPS
+  /// fraco em ambientes fechados.
+  static const precisaoAceitavelM = 300.0;
+
+  static bool ehAproximada(Position p) => p.accuracy > precisaoAceitavelM;
+
+  /// Posição escolhida pela usuária tocando no mapa (margem de erro zero).
+  /// Fica só na memória do app, como a posição do GPS.
+  static Position posicaoEscolhida(double latitude, double longitude) => Position(
+        latitude: latitude,
+        longitude: longitude,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
+
+  /// "±80 m", "±1,2 km", "±15 km".
+  static String formatarPrecisao(double metros) {
+    if (metros < 1000) return '±${(metros / 10).round() * 10} m';
+    if (metros < 10000) return '±${(metros / 1000).toStringAsFixed(1).replaceAll('.', ',')} km';
+    return '±${(metros / 1000).round()} km';
+  }
+
   /// Gera a URL do Google Maps com as coordenadas fornecidas.
   static String gerarLinkMaps(double latitude, double longitude) {
     return 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';

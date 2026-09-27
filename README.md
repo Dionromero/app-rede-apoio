@@ -10,7 +10,8 @@ Piloto: **Curitiba/PR**. Última atualização desta página: 26/09/2026.
 | --- | --- |
 | Backend (Supabase) | ✅ Pronto para o MVP: rede de apoio, canais de emergência, guias de direitos e localização ao vivo. Resumo em [API para o front](#api-para-o-front). |
 | Camada de dados do app | ✅ Pronta em `app/lib/api.dart`. As telas só consomem. |
-| Tela inicial | ✅ Mapa OpenStreetMap com pinos, filtros, localização sob demanda, botão 190, Ligue 180 e atalhos. |
+| Tela inicial | ✅ Novo visual (vinho/areia, títulos serifados, animações): botão 190, mapa com pinos e abas, atalhos. |
+| Mapa em tela cheia | ✅ Painel do local ao tocar no pino; **rota no próprio app** (a pé ou de carro, tempo, distância, passo a passo) e "Iniciar navegação no GPS". A rota depende da função `route` publicada (ver backend). |
 | Rede de apoio | ✅ ~90 serviços de Curitiba com coordenadas oficiais (IPPUC): CRAS, CREAS, UPAs 24h, delegacias, Defensoria, Casa da Mulher Brasileira e hospitais de referência. Busca sem acento, filtros, raio de 20 km, selo de verificação, ligar e "como chegar". |
 | Direitos e orientações | ✅ 7 guias com cache offline e aviso de revisão profissional pendente. |
 | Pessoas de confiança | 🟡 Lista de até 5 pessoas, salva só no aparelho (criptografada). Digitar funciona; "Escolher da agenda" usa o seletor do sistema, sem permissão de contatos, e ainda não foi testado em aparelho. |
@@ -168,6 +169,7 @@ As telas importam só `package:rede_apoio/api.dart`. Sem internet, todas as clas
 | `TrustedContactRepository.instance` | Pessoas de confiança, até 5, só no aparelho: `carregarTodos()`, `adicionar()` (devolve `ResultadoAdicao`), `remover(telefone)` |
 | `ShareLocationService.enviarComFallback(...)` | Enviar a localização atual uma vez |
 | `LocationShareController` | Localização ao vivo: `iniciar(contato:, minutos:)`, `encerrar()`, `status` |
+| `RouteService.calcular(de:, para:, modo:)` | Rota no app (`RoutePlan`: pontos, tempo, distância, passos). Em erro (`RouteException`), ofereça `SupportNetworkService.abrirNoMapa(i, modo:)` |
 
 Antes de compartilhar localização, **sempre mostre uma confirmação** dizendo o quê, com quem e por quanto tempo. O botão de parar fica sempre visível. O modo ao vivo só liga com `--dart-define=TRACKING_PAGE_URL=...`.
 
@@ -195,15 +197,19 @@ const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/location_share_view`, {
 const [estado] = await r.json(); // consultar a cada 15 s
 ```
 
+**Função `route`** (`POST {URL}/functions/v1/route`, com `Authorization: Bearer <chave>`): corpo `{"de": {"lat", "lng"}, "para": {"lat", "lng"}, "modo": "a_pe" | "carro"}` (até 80 km). Resposta: `distancia_m`, `duracao_s`, `geometria` (`[[lat, lng], ...]`), `passos` (`instrucao`, `distancia_m`, `duracao_s`, `via`), `atribuicao`. Erros em `{"erro", "mensagem"}`: `coordenada_invalida`, `modo_invalido`, `distancia_excedida` (400), `rota_nao_encontrada` (404), `muitas_requisicoes`/`limite_do_servico` (429), `rotas_indisponiveis` (503, sem chave). A origem vai só ao OpenRouteService para o cálculo e não é gravada.
+
 Tabelas liberadas só para leitura: `institutions` (ativas, sem Casa-Abrigo), `guides`, `emergency_channels`, `institution_categories`. **Sem acesso:** `location_shares`, `institution_review_queue`, `institutions_stale`.
 
 Mudou o banco? Crie uma migration nova, atualize esta seção e rode `backend/supabase/tests/api_test.sql`. Se mudar o formato de `get_app_bootstrap`, regenere o JSON offline com `select get_app_bootstrap('PR', 'Curitiba');`.
 
 ## Tecnologias
 
-- **Mobile:** Flutter e Dart. Pacotes principais: `supabase_flutter`, `flutter_map` + `latlong2` (mapa), `geolocator`, `url_launcher`, `flutter_secure_storage`, `shared_preferences`, `flutter_native_contact_picker` (agenda).
+- **Mobile:** Flutter e Dart. Pacotes principais: `supabase_flutter`, `flutter_map` + `latlong2` (mapa), `flutter_animate` (animações, o equivalente ao Framer Motion), `geolocator`, `url_launcher`, `flutter_secure_storage`, `shared_preferences`, `flutter_native_contact_picker` (agenda).
 - **Backend:** Supabase (PostgreSQL + PostGIS, RPCs em SQL).
-- **Mapas:** OpenStreetMap (atribuição obrigatória).
+- **Mapas:** OpenStreetMap (atribuição obrigatória), com filtro de cor suave.
+- **Rotas:** OpenRouteService via Edge Function do Supabase (chave só no servidor).
+- **Visual:** paleta vinho/areia/musgo; títulos em Fraunces e texto em Atkinson Hyperlegible (fontes embutidas, licença OFL).
 - **Landing page:** React e TypeScript (a iniciar).
 
 ## Segurança

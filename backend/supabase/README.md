@@ -51,6 +51,21 @@ npx supabase migration repair --status applied <versão>
 
 A migration de localização tenta agendar a limpeza com **pg_cron** a cada 15 min. Se o painel avisar que o pg_cron não está habilitado, ative em **Database → Extensions → pg_cron** e rode a migration de novo. Mesmo sem pg_cron, a limpeza roda a cada nova sessão criada.
 
+## Função de rotas (`functions/route`)
+
+Calcula a rota dentro do app usando o OpenRouteService.
+
+1. Crie uma conta gratuita em [openrouteservice.org](https://openrouteservice.org) e gere uma chave (plano gratuito com limite diário; confira no painel da HeiGIT).
+2. Guarde a chave como segredo e publique a função:
+
+```bash
+cd backend
+supabase secrets set ORS_API_KEY=<sua-chave>
+supabase functions deploy route
+```
+
+Sem a chave, a função responde 503 e o app oferece "Abrir no GPS do celular". Testes (sem rede): `npx tsx --test supabase/functions/route/handler_test.ts`.
+
 ## Testar
 
 Cole `tests/api_test.sql` no SQL Editor e rode. Ele simula o app (papel `anon`), testa todo o contrato e desfaz tudo no final (`ROLLBACK`), então é seguro em produção. Se tudo passar, o resultado é `ok: todos os testes passaram`. Se algo quebrar, aparece um erro `FALHOU: ...`.

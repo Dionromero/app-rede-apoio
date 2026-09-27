@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/content/app_content.dart';
+import '../../../../core/content/guide_icons.dart';
 import '../../../../core/services/emergency_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/simple_markdown.dart';
 
 /// Leitura de um guia de direitos/orientação.
@@ -18,11 +20,31 @@ class GuideDetailPage extends StatelessWidget {
     final revisado = guia.reviewedAt;
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AppBar(title: Text(guia.title)),
+      appBar: AppBar(),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, AppSpacing.screen, AppSpacing.xl),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.screen, 0, AppSpacing.screen, AppSpacing.xl),
           children: [
+            // Cabeçalho: ícone do guia e título em serifa.
+            Container(
+              width: 48,
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: guia.category == 'emergencia' ? AppColors.wineSoft : AppColors.inkSoft,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                GuideIcons.de(guia),
+                size: 24,
+                color: guia.category == 'emergencia' ? AppColors.wine : AppColors.ink,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(guia.title, style: AppFonts.serif(size: 30, peso: 560, height: 1.1)),
+            const SizedBox(height: AppSpacing.xs),
+            Text(guia.summary, style: const TextStyle(fontSize: 16, height: 1.5, color: AppColors.textSecondary)),
+            const SizedBox(height: AppSpacing.lg),
             SimpleMarkdown(guia.content, omitirPrimeiroTitulo: true),
             const SizedBox(height: AppSpacing.md),
             const Divider(),
@@ -35,7 +57,7 @@ class GuideDetailPage extends StatelessWidget {
                 Icon(
                   revisado != null ? Icons.verified_rounded : Icons.fact_check_outlined,
                   size: 16,
-                  color: revisado != null ? const Color(0xFF2E7D32) : const Color(0xFFE65100),
+                  color: revisado != null ? AppColors.moss : AppColors.wine,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
@@ -60,14 +82,14 @@ class GuideDetailPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
                   child: Row(
                     children: [
-                      const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.primary),
+                      const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.ink),
                       const SizedBox(width: AppSpacing.xs),
                       Expanded(
                         child: Text(
                           'Fonte: ${guia.sourceName ?? 'página oficial'}',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: AppColors.primary,
+                            color: AppColors.ink,
                             decoration: TextDecoration.underline,
                           ),
                         ),

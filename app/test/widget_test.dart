@@ -8,6 +8,8 @@ void main() {
 
   testWidgets('mostra acesso à configuração e à ajuda imediata', (tester) async {
     await tester.pumpWidget(const RedeApoioApp());
+    // A primeira tela tem animação de entrada: espera terminar.
+    await tester.pumpAndSettle();
 
     expect(find.text('Configurar aplicativo'), findsOneWidget);
     expect(find.text('Acessar ajuda agora'), findsOneWidget);

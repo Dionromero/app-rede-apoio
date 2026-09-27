@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/content/app_content.dart';
 import '../../../../core/content/app_content_repository.dart';
+import '../../../../core/content/guide_icons.dart';
 import '../../../../core/services/emergency_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -156,11 +157,15 @@ class _GuiaCard extends StatelessWidget {
                   height: 44,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: guia.category == 'emergencia' ? const Color(0xFFFFEBEE) : AppColors.blueSoft,
+                    color: guia.category == 'emergencia' ? AppColors.wineSoft : AppColors.inkSoft,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: ExcludeSemantics(
-                    child: Text(guia.icon ?? '📘', style: const TextStyle(fontSize: 22)),
+                    child: Icon(
+                      GuideIcons.de(guia),
+                      size: 22,
+                      color: guia.category == 'emergencia' ? AppColors.wine : AppColors.ink,
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),
@@ -216,17 +221,17 @@ class _Aviso extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF3E0),
+        color: AppColors.wineSoft,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFFFE0B2)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: const Color(0xFFE65100)),
+          Icon(icon, size: 18, color: AppColors.wine),
           const SizedBox(width: AppSpacing.xs),
           Expanded(
-            child: Text(texto, style: const TextStyle(fontSize: 12.5, color: Color(0xFFB34700))),
+            child: Text(texto, style: const TextStyle(fontSize: 12.5, color: AppColors.wineDeep)),
           ),
         ],
       ),

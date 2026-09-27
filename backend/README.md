@@ -18,6 +18,8 @@ backend/
 │   │   ├── 20260925120000_canais_categorias_conteudo.sql
 │   │   ├── 20260925120100_compartilhamento_localizacao.sql
 │   │   └── 20260926120000_rede_curitiba_ippuc.sql
+│   ├── functions/
+│   │   └── route/             # Edge Function: rota no app via OpenRouteService
 │   ├── tests/
 │   │   └── api_test.sql       # Testes do contrato da API (roda em transação e desfaz)
 │   └── README.md              # Como aplicar, testar e fazer curadoria
@@ -32,6 +34,7 @@ backend/
 | Botão de emergência (telefones) | RPC `get_emergency_channels` | `canais_categorias_conteudo` |
 | Direitos e orientações | tabela `guides` / RPC `get_app_bootstrap` | `guias_iniciais`, `canais_categorias_conteudo` |
 | Pacote offline do app | RPC `get_app_bootstrap` | `canais_categorias_conteudo` |
+| Rota até a instituição dentro do app | Edge Function `route` | `functions/route` |
 | Avisar a pessoa de confiança com localização ao vivo | RPCs `location_share_*` | `compartilhamento_localizacao` |
 
 A pessoa de confiança **não fica no servidor**: nome e telefone são salvos só no celular, criptografados.

@@ -43,7 +43,7 @@ class SimpleMarkdown extends StatelessWidget {
           padding: const EdgeInsets.only(top: AppSpacing.xs, bottom: AppSpacing.sm),
           child: Semantics(
             header: true,
-            child: _rico(b.texto, tema.headlineSmall?.copyWith(fontWeight: FontWeight.w800) ?? corpo),
+            child: _rico(b.texto, tema.headlineSmall ?? corpo),
           ),
         );
       case MdTipo.titulo2:
@@ -51,7 +51,7 @@ class SimpleMarkdown extends StatelessWidget {
           padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.xs),
           child: Semantics(
             header: true,
-            child: _rico(b.texto, tema.titleLarge?.copyWith(fontWeight: FontWeight.w800) ?? corpo),
+            child: _rico(b.texto, tema.titleLarge ?? corpo),
           ),
         );
       case MdTipo.titulo3:
@@ -85,9 +85,9 @@ class SimpleMarkdown extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: AppColors.pinkSoft,
+            color: AppColors.wineSoft,
             borderRadius: BorderRadius.circular(12),
-            border: const Border(left: BorderSide(color: AppColors.pink, width: 3)),
+            border: const Border(left: BorderSide(color: AppColors.wine, width: 3)),
           ),
           child: _rico(b.texto, corpo),
         );

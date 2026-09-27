@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:label="rede_apoio"
+        android:label="Rede de Apoio"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -26,11 +26,36 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+        </activity>
+
+        <!-- Atalhos da tela inicial. Só um fica ativo por vez (ver
+             MainActivity.definirModoDiscreto). O modo discreto troca o
+             ícone e o nome por um bloco de notas genérico, para não revelar
+             o app a quem mexer no celular. -->
+        <activity-alias
+            android:name=".AtalhoPadrao"
+            android:targetActivity=".MainActivity"
+            android:label="Rede de Apoio"
+            android:icon="@mipmap/ic_launcher"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <activity-alias
+            android:name=".AtalhoDiscreto"
+            android:targetActivity=".MainActivity"
+            android:label="Anotações"
+            android:icon="@mipmap/ic_launcher_discreto"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

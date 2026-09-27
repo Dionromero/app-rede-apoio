@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
 /// Serviço para ações de emergência: ligação 190, 180 e discagem direta.
@@ -46,7 +48,7 @@ class EmergencyService {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.phone_in_talk_rounded, color: Color(0xFFC62828)),
+            Icon(Icons.phone_in_talk_rounded, color: AppColors.emergency),
             SizedBox(width: AppSpacing.sm),
             Text('Ligar para 190'),
           ],
@@ -64,7 +66,7 @@ class EmergencyService {
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFC62828),
+              backgroundColor: AppColors.emergency,
               minimumSize: const Size(64, 44),
             ),
             child: const Text('Ligar agora'),
@@ -90,7 +92,7 @@ class EmergencyService {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
-            Icon(Icons.support_agent_rounded, color: Color(0xFF1A4DAD)),
+            Icon(Icons.support_agent_rounded, color: AppColors.ink),
             SizedBox(width: AppSpacing.sm),
             Expanded(child: Text('Ligar para o Ligue 180')),
           ],

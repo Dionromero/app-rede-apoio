@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/category_tabs.dart';
 import '../../data/support_network_service.dart';
 import '../../domain/models/support_institution.dart';
 
@@ -216,9 +220,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                       children: [
                         Text(
                           'Rede de Apoio',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
+                          style: AppFonts.serif(size: 26, peso: 600, height: 1.1),
                         ),
                         Text(
                           'Pontos de atendimento e proteção',
@@ -244,7 +246,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppShape.radius),
                   border: Border.all(color: AppColors.border),
                   boxShadow: const [
                     BoxShadow(
@@ -279,25 +281,13 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
               ),
             ),
 
-            // ── Chips de Categorias ────────────────────────────────────
+            // ── Abas de categoria (mesmo componente da Home e do mapa) ──
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                child: Row(
-                  children: SupportNetworkPage.categoriasFiltro.map((cat) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: AppSpacing.xs),
-                      child: _CategoryChip(
-                        label: cat.label,
-                        icon: cat.icon,
-                        selected: _filtroCategoria == cat.id,
-                        onTap: () => _selecionarCategoria(cat.id),
-                      ),
-                    );
-                  }).toList(),
-                ),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, 0, AppSpacing.xs),
+              child: CategoryTabs(
+                itens: [for (final c in SupportNetworkPage.categoriasFiltro) (c.id, c.label)],
+                selecionado: _filtroCategoria,
+                onSelecionar: _selecionarCategoria,
               ),
             ),
 
@@ -330,7 +320,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF2E7D32),
+                        color: AppColors.moss,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -341,7 +331,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                             ? 'Nada a até ${AppConfig.raioBuscaKm.round()} km: mostrando os mais próximos'
                             : 'Locais a até ${AppConfig.raioBuscaKm.round()} km, do mais perto ao mais longe',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: const Color(0xFF2E7D32),
+                              color: AppColors.moss,
                               fontWeight: FontWeight.w600,
                             ),
                       ),
@@ -377,9 +367,18 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                               itemBuilder: (context, index) {
                                 final inst = _instituicoes[index];
                                 return _InstituicaoCard(
+                                  key: ValueKey(inst.id),
                                   instituicao: inst,
                                   onTap: () => _abrirDetalhes(inst),
-                                );
+                                )
+                                    .animate()
+                                    .fadeIn(delay: (math.min(index, 8) * 45).ms, duration: AppShape.medio)
+                                    .slideY(
+                                      begin: 0.06,
+                                      delay: (math.min(index, 8) * 45).ms,
+                                      duration: AppShape.lento,
+                                      curve: AppShape.curva,
+                                    );
                               },
                             ),
                             if (_carregando)
@@ -418,14 +417,14 @@ class _AvisoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cor = neutro ? AppColors.primary : const Color(0xFFE65100);
+    final cor = neutro ? AppColors.ink : AppColors.wine;
     return Container(
       margin: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xxs, AppSpacing.screen, AppSpacing.xs),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
       decoration: BoxDecoration(
-        color: neutro ? AppColors.blueSoft : const Color(0xFFFFF3E0),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: neutro ? AppColors.border : const Color(0xFFFFE0B2)),
+        color: neutro ? AppColors.inkSoft : AppColors.wineSoft,
+        borderRadius: BorderRadius.circular(AppShape.radiusSm),
+        border: Border.all(color: neutro ? AppColors.border : AppColors.hairline),
       ),
       child: Row(
         children: [
@@ -487,7 +486,7 @@ class _ListaVazia extends StatelessWidget {
               label: const Text('Ver todas as instituições'),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppShape.radiusSm)),
               ),
             ),
           ],
@@ -507,7 +506,7 @@ class _SeloVerificacao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final verificado = instituicao.isVerified();
-    final cor = verificado ? const Color(0xFF2E7D32) : const Color(0xFFE65100);
+    final cor = verificado ? AppColors.moss : AppColors.wine;
     return Row(
       children: [
         Icon(
@@ -533,6 +532,7 @@ class _InstituicaoCard extends StatelessWidget {
   const _InstituicaoCard({
     required this.instituicao,
     required this.onTap,
+    super.key,
   });
 
   final SupportInstitution instituicao;
@@ -543,14 +543,14 @@ class _InstituicaoCard extends StatelessWidget {
     final temTelefone = instituicao.phone != null;
     return Material(
       color: AppColors.surface,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppShape.radiusLg),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppShape.radiusLg),
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppShape.radiusLg),
             border: Border.all(color: AppColors.border),
             boxShadow: const [
               BoxShadow(
@@ -611,8 +611,8 @@ class _InstituicaoCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
                       decoration: BoxDecoration(
-                        color: AppColors.blueSoft,
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.inkSoft,
+                        borderRadius: BorderRadius.circular(AppShape.radiusSm),
                       ),
                       child: Text(
                         instituicao.hasApproximateLocation
@@ -621,7 +621,7 @@ class _InstituicaoCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
+                          color: AppColors.ink,
                         ),
                       ),
                     ),
@@ -675,7 +675,7 @@ class _InstituicaoCard extends StatelessWidget {
                   Icon(
                     Icons.access_time_rounded,
                     size: 16,
-                    color: instituicao.is24Hours ? const Color(0xFF2E7D32) : AppColors.textSecondary,
+                    color: instituicao.is24Hours ? AppColors.moss : AppColors.textSecondary,
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Expanded(
@@ -684,7 +684,7 @@ class _InstituicaoCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: instituicao.is24Hours ? FontWeight.w700 : FontWeight.w500,
-                        color: instituicao.is24Hours ? const Color(0xFF2E7D32) : AppColors.textSecondary,
+                        color: instituicao.is24Hours ? AppColors.moss : AppColors.textSecondary,
                       ),
                     ),
                   ),
@@ -711,10 +711,10 @@ class _InstituicaoCard extends StatelessWidget {
                           style: const TextStyle(fontSize: 12),
                         ),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
+                          foregroundColor: AppColors.ink,
                           side: const BorderSide(color: AppColors.border),
                           padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm, horizontal: AppSpacing.xs),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppShape.radiusSm)),
                         ),
                       ),
                     ),
@@ -728,7 +728,7 @@ class _InstituicaoCard extends StatelessWidget {
                       style: FilledButton.styleFrom(
                         backgroundColor: instituicao.themeColor,
                         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm, horizontal: AppSpacing.xs),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppShape.radiusSm)),
                       ),
                     ),
                   ),
@@ -801,7 +801,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
                   height: 52,
                   decoration: BoxDecoration(
                     color: instituicao.softThemeColor,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(AppShape.radius),
                   ),
                   child: Icon(instituicao.icon, color: instituicao.themeColor, size: 28),
                 ),
@@ -821,7 +821,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
                       const SizedBox(height: AppSpacing.xxs),
                       Text(
                         instituicao.name,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                        style: AppFonts.serif(size: 22, peso: 600, height: 1.15),
                       ),
                       if (instituicao.subcategory != null) ...[
                         const SizedBox(height: AppSpacing.xxs),
@@ -840,7 +840,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
             // Endereço
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.place_rounded, color: AppColors.primary),
+              leading: const Icon(Icons.place_rounded, color: AppColors.ink),
               title: const Text('Endereço', style: rotulo),
               subtitle: Text(
                 '${instituicao.address}\n${instituicao.city} - ${instituicao.state}'
@@ -854,7 +854,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
             if (instituicao.targetAudience != null)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.groups_rounded, color: AppColors.primary),
+                leading: const Icon(Icons.groups_rounded, color: AppColors.ink),
                 title: const Text('Quem é atendido', style: rotulo),
                 subtitle: Text(instituicao.targetAudience!, style: valor),
               ),
@@ -862,12 +862,12 @@ class InstitutionDetailsSheet extends StatelessWidget {
             // Horário
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.schedule_rounded, color: AppColors.primary),
+              leading: const Icon(Icons.schedule_rounded, color: AppColors.ink),
               title: const Text('Horário de atendimento', style: rotulo),
               subtitle: Text(
                 instituicao.formattedOpeningHours,
                 style: valor.copyWith(
-                  color: instituicao.is24Hours ? const Color(0xFF2E7D32) : AppColors.textPrimary,
+                  color: instituicao.is24Hours ? AppColors.moss : AppColors.textPrimary,
                 ),
               ),
             ),
@@ -876,7 +876,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
             if (telefones.isNotEmpty)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.phone_rounded, color: AppColors.primary),
+                leading: const Icon(Icons.phone_rounded, color: AppColors.ink),
                 title: const Text('Telefones', style: rotulo),
                 subtitle: Text(telefones.join('  •  '), style: valor),
               ),
@@ -923,14 +923,14 @@ class InstitutionDetailsSheet extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   child: Row(
                     children: [
-                      const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.primary),
+                      const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.ink),
                       const SizedBox(width: AppSpacing.xs),
                       Expanded(
                         child: Text(
                           'Fonte: ${instituicao.sourceName ?? 'página oficial'}',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: AppColors.primary,
+                            color: AppColors.ink,
                             decoration: TextDecoration.underline,
                           ),
                         ),
@@ -975,73 +975,6 @@ class InstitutionDetailsSheet extends StatelessWidget {
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Widget: Chip de Categoria Personalizado ──────────────────────────────────
-
-class _CategoryChip extends StatelessWidget {
-  const _CategoryChip({
-    required this.label,
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.primary : AppColors.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: selected ? AppColors.primary : AppColors.border,
-              width: 1.2,
-            ),
-            boxShadow: selected
-                ? const [
-                    BoxShadow(
-                      color: AppColors.shadowMedium,
-                      blurRadius: 6,
-                      offset: Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 16,
-                color: selected ? Colors.white : AppColors.textSecondary,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: selected ? Colors.white : AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

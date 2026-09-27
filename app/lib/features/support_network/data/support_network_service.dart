@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/config/supabase_config.dart';
 import '../../../../core/utils/text_normalizer.dart';
+import '../domain/models/route_plan.dart';
 import '../domain/models/support_institution.dart';
 
 /// Resultado de uma busca na rede de apoio.
@@ -202,20 +203,23 @@ class SupportNetworkService {
   ///
   /// Se a coordenada for aproximada, usa o endereço para não levar a
   /// usuária a um ponto errado.
-  static Future<bool> abrirNoMapa(SupportInstitution instituicao) async {
+  ///
+  /// [modo] define o meio de transporte já selecionado no app de mapas.
+  static Future<bool> abrirNoMapa(SupportInstitution instituicao, {TravelMode? modo}) async {
+    final viagem = modo == null ? '' : '&travelmode=${modo.googleMaps}';
     final Uri uri;
     if (!instituicao.hasApproximateLocation &&
         instituicao.latitude != null &&
         instituicao.longitude != null) {
       uri = Uri.parse(
         'https://www.google.com/maps/dir/?api=1'
-        '&destination=${instituicao.latitude},${instituicao.longitude}',
+        '&destination=${instituicao.latitude},${instituicao.longitude}$viagem',
       );
     } else {
       final destino = Uri.encodeComponent(
         '${instituicao.address}, ${instituicao.city} - ${instituicao.state}',
       );
-      uri = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$destino');
+      uri = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$destino$viagem');
     }
 
     try {

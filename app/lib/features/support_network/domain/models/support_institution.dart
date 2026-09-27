@@ -142,22 +142,22 @@ class SupportInstitution {
       case 'delegacia_mulher':
       case 'delegacia':
       case 'delegacia_comum':
-        return AppColors.pink;
+        return AppColors.wine;
       case 'defensoria':
       case 'defensoria_publica':
       case 'ministerio_publico':
       case 'forum':
-        return AppColors.primary;
+        return AppColors.ink;
       case 'creas':
       case 'cras':
       case 'centro_referencia':
       case 'ong':
-        return const Color(0xFF2E7D32); // Verde acolhimento
+        return AppColors.moss; // acolhimento
       case 'hospital':
       case 'upa':
         return AppColors.emergency;
       default:
-        return AppColors.primary;
+        return AppColors.ink;
     }
   }
 
@@ -167,22 +167,22 @@ class SupportInstitution {
       case 'delegacia_mulher':
       case 'delegacia':
       case 'delegacia_comum':
-        return AppColors.pinkSoft;
+        return AppColors.wineSoft;
       case 'defensoria':
       case 'defensoria_publica':
       case 'ministerio_publico':
       case 'forum':
-        return AppColors.blueSoft;
+        return AppColors.inkSoft;
       case 'creas':
       case 'cras':
       case 'centro_referencia':
       case 'ong':
-        return const Color(0xFFE8F5E9);
+        return AppColors.mossSoft;
       case 'hospital':
       case 'upa':
-        return const Color(0xFFFFEBEE);
+        return AppColors.wineSoft;
       default:
-        return AppColors.blueSoft;
+        return AppColors.inkSoft;
     }
   }
 
