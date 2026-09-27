@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rede_apoio/app/app.dart';
 
@@ -18,5 +19,17 @@ void main() {
 
     expect(find.text('Cadastre uma pessoa de confiança'), findsOneWidget);
     expect(find.text('Nome da pessoa'), findsOneWidget);
+  });
+
+  testWidgets('formata nome e telefone no cadastro', (tester) async {
+    await tester.pumpWidget(const RedeApoioApp());
+    await tester.tap(find.text('Configurar aplicativo'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Nome da pessoa'), 'maria silva');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Telefone'), '41999998888');
+
+    expect(find.text('Maria silva'), findsOneWidget);
+    expect(find.text('(41) 99999-8888'), findsOneWidget);
   });
 }
