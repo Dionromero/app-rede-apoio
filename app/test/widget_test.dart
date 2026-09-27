@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rede_apoio/app/app.dart';
 
 void main() {
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
+
   testWidgets('mostra acesso à configuração e à ajuda imediata', (tester) async {
     await tester.pumpWidget(const RedeApoioApp());
 
@@ -17,7 +20,7 @@ void main() {
     await tester.tap(find.text('Configurar aplicativo'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Cadastre uma pessoa de confiança'), findsOneWidget);
+    expect(find.text('Suas pessoas de confiança'), findsOneWidget);
     expect(find.text('Nome da pessoa'), findsOneWidget);
   });
 
