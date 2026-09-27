@@ -20,13 +20,15 @@ void main() {
     await tester.tap(find.text('Configurar aplicativo'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Suas pessoas de confiança'), findsOneWidget);
-    expect(find.text('Nome da pessoa'), findsOneWidget);
+    expect(find.text('Pessoas de confiança'), findsOneWidget);
+    expect(find.text('Digitar número'), findsOneWidget);
   });
 
   testWidgets('formata nome e telefone no cadastro', (tester) async {
     await tester.pumpWidget(const RedeApoioApp());
     await tester.tap(find.text('Configurar aplicativo'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Digitar número'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.widgetWithText(TextFormField, 'Nome da pessoa'), 'maria silva');
