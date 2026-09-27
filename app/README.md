@@ -33,7 +33,7 @@ assets/offline/       # Conteúdo embutido para o primeiro uso sem internet
 test/                 # Testes de modelos, busca offline, camada de dados e telas
 ```
 
-Contrato de cada classe da camada de dados: [docs/API.md](../docs/API.md).
+Contrato de cada classe da camada de dados: [API para o front](../README.md#api-para-o-front).
 
 ## Comandos
 
@@ -56,7 +56,8 @@ Variáveis de build (`--dart-define`): `TRACKING_PAGE_URL` (liga a localização
 | `flutter_map` + `latlong2` | Mapa OpenStreetMap | Sem chave de API; exige atribuição "OpenStreetMap contributors" |
 | `geolocator`, `permission_handler` | Localização | Permissão pedida só quando a usuária toca em "usar minha localização" |
 | `url_launcher` | Discador, WhatsApp, SMS, mapas | O envio final é sempre confirmado pela usuária |
-| `flutter_secure_storage` | Pessoa de confiança criptografada | Keystore/Keychain; nada vai ao servidor |
+| `flutter_secure_storage` | Pessoas de confiança criptografadas | Keystore/Keychain; nada vai ao servidor |
+| `flutter_native_contact_picker` | "Escolher da agenda" na tela de pessoas de confiança | Seletor do sistema: sem permissão de contatos e sem rede; o app recebe só o número escolhido. BSD-3. Pacote pequeno (v0.0.12, autor não verificado); código revisado em 26/09/2026 |
 | `shared_preferences` | Cache do conteúdo (canais e guias) | Só conteúdo público |
 
 ## Cuidados conhecidos

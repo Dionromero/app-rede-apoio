@@ -16,7 +16,7 @@ Explicar a proposta com linguagem clara, apresentar limites de segurança e orie
 
 ## Página /acompanhar
 
-Página em que a pessoa de confiança acompanha a localização ao vivo, sem instalar o app. Recebe o token no fragmento da URL (`/acompanhar#t=<viewer_token>`) e consulta a RPC `location_share_view` a cada 15 s. Contrato, estados e exemplo em [docs/API.md](../docs/API.md#location_share_view-página-acompanhar). Depois de publicada, o endereço vai para o app em `--dart-define=TRACKING_PAGE_URL=...`.
+Página em que a pessoa de confiança acompanha a localização ao vivo, sem instalar o app. Recebe o token no fragmento da URL (`/acompanhar#t=<viewer_token>`) e consulta a RPC `location_share_view` a cada 15 s. Contrato, estados e exemplo em [API para o front](../README.md#api-para-o-front). Depois de publicada, o endereço vai para o app em `--dart-define=TRACKING_PAGE_URL=...`.
 
 ## Limites
 

@@ -17,6 +17,7 @@ dependencies:
   shared_preferences: ^2.3.2 # cache offline do conteúdo (canais e guias)
   flutter_map: ^8.1.1 # mapa OpenStreetMap (BSD-3, sem chave de API)
   latlong2: ^0.9.1 # coordenadas para o flutter_map
+  flutter_native_contact_picker: ^0.0.12
 
 dev_dependencies:
   flutter_test:

@@ -4,7 +4,7 @@
 /// import 'package:rede_apoio/api.dart';
 /// ```
 ///
-/// Contrato completo, exemplos e regras: docs/API.md.
+/// Contrato e regras: README.md, seção "API para o front".
 library;
 
 // Configuração

@@ -369,8 +369,8 @@ class _HomePageState extends State<HomePage> {
 
               ActionCard(
                 icon: Icons.people_alt_rounded,
-                title: 'Pessoa de confiança',
-                description: 'Cadastrar ou revisar um contato escolhido.',
+                title: 'Pessoas de confiança',
+                description: 'Cadastrar ou revisar até 5 contatos escolhidos.',
                 accentColor: AppColors.pink,
                 iconBackgroundColor: AppColors.pinkSoft,
                 onTap: () => Navigator.pushNamed(

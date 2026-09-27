@@ -50,7 +50,7 @@ class SupportNetworkMap extends StatefulWidget {
   static const centroPiloto = LatLng(-25.4284, -49.2733);
 
   /// Servidor de tiles. Os tiles públicos do OSM servem para o piloto;
-  /// em produção, troque por um provedor de tiles (ver docs/ARQUITETURA.md).
+  /// em produção, troque por um provedor de tiles (ver opções de build no README).
   static const tileUrl = String.fromEnvironment(
     'MAP_TILE_URL',
     defaultValue: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
