@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/input_formatters.dart';
 import '../../../home/presentation/pages/home_page.dart';
+import '../../domain/trusted_contact.dart';
 
 class TrustedContactPage extends StatefulWidget {
   const TrustedContactPage({super.key});
@@ -100,6 +102,7 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                 TextFormField(
                   controller: _nameController,
                   textCapitalization: TextCapitalization.words,
+                  inputFormatters: [PrimeiraLetraMaiusculaInputFormatter()],
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: 'Nome da pessoa',
@@ -119,6 +122,7 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  inputFormatters: [TelefoneBrInputFormatter()],
                   textInputAction: TextInputAction.done,
                   decoration: const InputDecoration(
                     labelText: 'Telefone',
@@ -126,8 +130,7 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                     prefixIcon: Icon(Icons.phone_outlined),
                   ),
                   validator: (value) {
-                    final digits = value?.replaceAll(RegExp(r'\D'), '') ?? '';
-                    if (digits.length < 10) {
+                    if (TrustedContact.normalizarTelefoneBr(value ?? '') == null) {
                       return 'Informe um telefone válido.';
                     }
                     return null;
