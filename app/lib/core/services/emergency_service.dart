@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../theme/app_spacing.dart';
 
 /// Serviço para ações de emergência: ligação 190, 180 e discagem direta.
 ///
@@ -46,7 +47,7 @@ class EmergencyService {
         title: const Row(
           children: [
             Icon(Icons.phone_in_talk_rounded, color: Color(0xFFC62828)),
-            SizedBox(width: 12),
+            SizedBox(width: AppSpacing.sm),
             Text('Ligar para 190'),
           ],
         ),
@@ -90,7 +91,7 @@ class EmergencyService {
         title: const Row(
           children: [
             Icon(Icons.support_agent_rounded, color: Color(0xFF1A4DAD)),
-            SizedBox(width: 12),
+            SizedBox(width: AppSpacing.sm),
             Expanded(child: Text('Ligar para o Ligue 180')),
           ],
         ),

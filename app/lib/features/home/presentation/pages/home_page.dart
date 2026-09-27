@@ -7,6 +7,7 @@ import '../../../../core/services/emergency_service.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/share_location_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/action_card.dart';
 import '../../../../core/widgets/support_network_map.dart';
 import '../../../guidance/presentation/pages/guidance_page.dart';
@@ -137,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(width: 12),
+            SizedBox(width: AppSpacing.sm),
             Text('Obtendo localização…'),
           ],
         ),
@@ -209,7 +210,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
             children: [
               // ── Cabeçalho ────────────────────────────────────────────
               Row(
@@ -228,7 +229,7 @@ class _HomePageState extends State<HomePage> {
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
                       'Rede de Apoio',
@@ -263,20 +264,20 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
 
               // ── Título da seção ───────────────────────────────────────
               Text(
                 'Apoio perto de você',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 'Encontre serviços e canais de orientação. Você decide cada próximo passo.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.md),
 
               // ── Filtros ───────────────────────────────────────────────
               SingleChildScrollView(
@@ -285,7 +286,7 @@ class _HomePageState extends State<HomePage> {
                   children: SupportNetworkPage.categoriasFiltro
                       .map(
                         (cat) => Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: AppSpacing.xs),
                           child: _FilterChip(
                             label: cat.label,
                             selected: _filter == cat.id,
@@ -297,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.md),
 
               // ── Mapa da rede de apoio ─────────────────────────────────
               if (_carregandoMapa)
@@ -320,7 +321,7 @@ class _HomePageState extends State<HomePage> {
                   onAmpliar: _ampliarMapa,
                   onSelecionar: (grupo) => SupportMapPage.mostrarGrupo(context, grupo),
                 ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               Row(
                 children: [
                   Expanded(
@@ -347,14 +348,14 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.md),
 
               // ── Card de Emergência 190 ────────────────────────────────
               _EmergencyCard(
                 onTap: () => EmergencyService.confirmarELigar190(context),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
 
               // ── Outras opções ─────────────────────────────────────────
               Text(
@@ -364,7 +365,7 @@ class _HomePageState extends State<HomePage> {
                     ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.sm),
 
               ActionCard(
                 icon: Icons.people_alt_rounded,
@@ -426,7 +427,7 @@ class _FilterChip extends StatelessWidget {
       onTap: onSelected,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
         decoration: BoxDecoration(
           color: selected ? AppColors.blueSoft : AppColors.surface,
           borderRadius: BorderRadius.circular(24),
@@ -465,7 +466,7 @@ class _EmergencyCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         splashColor: Colors.white.withValues(alpha: 0.12),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
           child: Row(
             children: [
               // Ícone com fundo semi-transparente
@@ -482,7 +483,7 @@ class _EmergencyCard extends StatelessWidget {
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.md),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,7 +497,7 @@ class _EmergencyCard extends StatelessWidget {
                         height: 1.2,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: AppSpacing.xxs),
                     Text(
                       'Abrir ligação para a Polícia Militar.',
                       style: TextStyle(

@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../../../core/widgets/support_network_map.dart';
 import '../../domain/models/support_institution.dart';
 import 'support_network_page.dart';
+import '../../../../core/theme/app_spacing.dart';
 
 /// Mapa da rede de apoio em tela cheia (aberto pelo botão "ampliar" da Home).
 class SupportMapPage extends StatelessWidget {
@@ -30,7 +31,7 @@ class SupportMapPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.screen, 0, AppSpacing.screen, AppSpacing.xs),
               child: Text(
                 '${grupo.length} serviços neste endereço',
                 style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
@@ -47,7 +48,7 @@ class SupportMapPage extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => Navigator.pop(ctx, inst),
               ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.sm),
           ],
         ),
       ),

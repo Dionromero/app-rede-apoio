@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
 
 /// Card de ação reutilizável para navegação e canais de apoio.
 ///
@@ -34,7 +35,7 @@ class ActionCard extends StatelessWidget {
     final effectiveBg = iconBackgroundColor ?? effectiveAccent.withValues(alpha: 0.12);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Material(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
@@ -42,7 +43,7 @@ class ActionCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(20),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.lg),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.border, width: 1.5),
@@ -65,7 +66,7 @@ class ActionCard extends StatelessWidget {
                   ),
                   child: Icon(icon, color: effectiveAccent, size: 22),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +78,7 @@ class ActionCard extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: AppSpacing.xxs),
                       Text(
                         description,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -88,7 +89,7 @@ class ActionCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.xs),
                 const Icon(
                   Icons.chevron_right_rounded,
                   color: AppColors.border,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
 
 /// Renderizador de Markdown simples para os guias de direitos.
 ///
@@ -39,7 +40,7 @@ class SimpleMarkdown extends StatelessWidget {
     switch (b.tipo) {
       case MdTipo.titulo1:
         return Padding(
-          padding: const EdgeInsets.only(top: 8, bottom: 12),
+          padding: const EdgeInsets.only(top: AppSpacing.xs, bottom: AppSpacing.sm),
           child: Semantics(
             header: true,
             child: _rico(b.texto, tema.headlineSmall?.copyWith(fontWeight: FontWeight.w800) ?? corpo),
@@ -47,7 +48,7 @@ class SimpleMarkdown extends StatelessWidget {
         );
       case MdTipo.titulo2:
         return Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 8),
+          padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.xs),
           child: Semantics(
             header: true,
             child: _rico(b.texto, tema.titleLarge?.copyWith(fontWeight: FontWeight.w800) ?? corpo),
@@ -55,7 +56,7 @@ class SimpleMarkdown extends StatelessWidget {
         );
       case MdTipo.titulo3:
         return Padding(
-          padding: const EdgeInsets.only(top: 14, bottom: 6),
+          padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.xs),
           child: Semantics(
             header: true,
             child: _rico(b.texto, tema.titleMedium?.copyWith(fontWeight: FontWeight.w700) ?? corpo),
@@ -64,7 +65,7 @@ class SimpleMarkdown extends StatelessWidget {
       case MdTipo.itemLista:
       case MdTipo.itemNumerado:
         return Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          padding: const EdgeInsets.only(left: AppSpacing.xxs, bottom: AppSpacing.xs),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -81,8 +82,8 @@ class SimpleMarkdown extends StatelessWidget {
         );
       case MdTipo.citacao:
         return Container(
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          padding: const EdgeInsets.all(14),
+          margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+          padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
             color: AppColors.pinkSoft,
             borderRadius: BorderRadius.circular(12),
@@ -92,7 +93,7 @@ class SimpleMarkdown extends StatelessWidget {
         );
       case MdTipo.paragrafo:
         return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
           child: _rico(b.texto, corpo),
         );
     }

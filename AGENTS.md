@@ -46,6 +46,7 @@ Leia também:
 - Todo pacote novo exige justificativa de privacidade, manutenção e licença.
 - Não versionar APKs, caches, arquivos locais do Android, chaves, tokens ou arquivos `.env`.
 - Antes de concluir uma mudança Flutter, rode `flutter analyze` e `flutter test` dentro de `app/`.
+- Espaçamentos: use `AppSpacing` (`app/lib/core/theme/app_spacing.dart`), grade de 4 pt com margem lateral de 20 (`AppSpacing.screen`). Não use números soltos em `EdgeInsets`, `SizedBox` ou `spacing`.
 - Botões dentro de `Row` precisam de `minimumSize` explícito (o tema usa largura infinita) ou de `Expanded`. Veja "Cuidados conhecidos" em `app/README.md`.
 - Ao mudar telas ou fluxos, atualize o fluxograma do `README.md`.
 - Atualize `docs/PENDENCIAS.md` quando uma etapa for concluída ou o escopo mudar.

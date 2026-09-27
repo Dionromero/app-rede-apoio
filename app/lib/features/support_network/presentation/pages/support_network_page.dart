@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../data/support_network_service.dart';
 import '../../domain/models/support_institution.dart';
 
@@ -200,7 +201,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
           children: [
             // ── Top Bar ──────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.sm, AppSpacing.screen, AppSpacing.xs),
               child: Row(
                 children: [
                   IconButton(
@@ -208,7 +209,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                     icon: const Icon(Icons.arrow_back_rounded),
                     tooltip: 'Voltar',
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,7 +240,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
 
             // ── Barra de Busca ─────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen, vertical: AppSpacing.xs),
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.surface,
@@ -272,7 +273,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                           )
                         : null,
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
                   ),
                 ),
               ),
@@ -280,14 +281,14 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
 
             // ── Chips de Categorias ────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
                 child: Row(
                   children: SupportNetworkPage.categoriasFiltro.map((cat) {
                     return Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.only(right: AppSpacing.xs),
                       child: _CategoryChip(
                         label: cat.label,
                         icon: cat.icon,
@@ -322,7 +323,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
               )
             else if (_posicaoAtual != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 4, 24, 8),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xxs, AppSpacing.screen, AppSpacing.xs),
                 child: Row(
                   children: [
                     Container(
@@ -333,7 +334,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.xs),
                     Flexible(
                       child: Text(
                         _foraDoRaio
@@ -357,7 +358,7 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CircularProgressIndicator(strokeWidth: 2.5),
-                          SizedBox(height: 16),
+                          SizedBox(height: AppSpacing.md),
                           Text(
                             'Buscando rede de apoio...',
                             style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
@@ -370,9 +371,9 @@ class _SupportNetworkPageState extends State<SupportNetworkPage> {
                       : Stack(
                           children: [
                             ListView.separated(
-                              padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                              padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xxs, AppSpacing.screen, AppSpacing.xl),
                               itemCount: _instituicoes.length,
-                              separatorBuilder: (_, __) => const SizedBox(height: 14),
+                              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
                               itemBuilder: (context, index) {
                                 final inst = _instituicoes[index];
                                 return _InstituicaoCard(
@@ -419,8 +420,8 @@ class _AvisoBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final cor = neutro ? AppColors.primary : const Color(0xFFE65100);
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xxs, AppSpacing.screen, AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
       decoration: BoxDecoration(
         color: neutro ? AppColors.blueSoft : const Color(0xFFFFF3E0),
         borderRadius: BorderRadius.circular(12),
@@ -429,7 +430,7 @@ class _AvisoBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 18, color: cor),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(texto, style: TextStyle(fontSize: 12, color: cor)),
           ),
@@ -438,7 +439,7 @@ class _AvisoBanner extends StatelessWidget {
               onPressed: onAcao,
               style: TextButton.styleFrom(
                 minimumSize: const Size(0, 36), // tema usa largura infinita
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                 visualDensity: VisualDensity.compact,
               ),
               child: Text(acao!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
@@ -460,32 +461,32 @@ class _ListaVazia extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.search_off_rounded, size: 56, color: AppColors.textSecondary),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             Text(
               'Nenhum local encontrado',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.xs),
             const Text(
               'Tente outra palavra ou categoria. Se precisar de orientação agora, '
               'o Ligue 180 funciona 24 horas.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.lg),
             OutlinedButton.icon(
               onPressed: onLimpar,
               icon: const Icon(Icons.refresh_rounded, size: 18),
               label: const Text('Ver todas as instituições'),
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
@@ -514,7 +515,7 @@ class _SeloVerificacao extends StatelessWidget {
           size: 15,
           color: cor,
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
             instituicao.verificationLabel(),
@@ -547,7 +548,7 @@ class _InstituicaoCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.border),
@@ -579,7 +580,7 @@ class _InstituicaoCard extends StatelessWidget {
                       size: 24,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -593,7 +594,7 @@ class _InstituicaoCard extends StatelessWidget {
                             letterSpacing: 0.3,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: AppSpacing.xxs),
                         Text(
                           instituicao.name,
                           style: const TextStyle(
@@ -608,7 +609,7 @@ class _InstituicaoCard extends StatelessWidget {
                   ),
                   if (instituicao.formattedDistance != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
                       decoration: BoxDecoration(
                         color: AppColors.blueSoft,
                         borderRadius: BorderRadius.circular(12),
@@ -627,14 +628,14 @@ class _InstituicaoCard extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.sm),
 
               // Endereço
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.place_outlined, size: 16, color: AppColors.textSecondary),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
                       '${instituicao.address} — ${instituicao.city}, ${instituicao.state}',
@@ -650,12 +651,12 @@ class _InstituicaoCard extends StatelessWidget {
 
               // Público atendido
               if (instituicao.targetAudience != null) ...[
-                const SizedBox(height: 6),
+                const SizedBox(height: AppSpacing.xs),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(Icons.groups_outlined, size: 16, color: AppColors.textSecondary),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: AppSpacing.xs),
                     Expanded(
                       child: Text(
                         instituicao.targetAudience!,
@@ -666,7 +667,7 @@ class _InstituicaoCard extends StatelessWidget {
                 ),
               ],
 
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.xs),
 
               // Horário
               Row(
@@ -676,7 +677,7 @@ class _InstituicaoCard extends StatelessWidget {
                     size: 16,
                     color: instituicao.is24Hours ? const Color(0xFF2E7D32) : AppColors.textSecondary,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
                       instituicao.formattedOpeningHours,
@@ -690,10 +691,10 @@ class _InstituicaoCard extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.xs),
               _SeloVerificacao(instituicao: instituicao),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: AppSpacing.md),
 
               // Botões de Ação rápida
               Row(
@@ -712,12 +713,12 @@ class _InstituicaoCard extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
                           side: const BorderSide(color: AppColors.border),
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm, horizontal: AppSpacing.xs),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.xs),
                   ],
                   Expanded(
                     child: FilledButton.icon(
@@ -726,7 +727,7 @@ class _InstituicaoCard extends StatelessWidget {
                       label: const Text('Como chegar', style: TextStyle(fontSize: 12)),
                       style: FilledButton.styleFrom(
                         backgroundColor: instituicao.themeColor,
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm, horizontal: AppSpacing.xs),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
@@ -776,7 +777,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
         ),
         child: ListView(
           controller: scrollController,
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
           children: [
             // Barra de puxar
             Center(
@@ -789,7 +790,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.lg),
 
             // Cabeçalho
             Row(
@@ -804,7 +805,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
                   ),
                   child: Icon(instituicao.icon, color: instituicao.themeColor, size: 28),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -817,13 +818,13 @@ class InstitutionDetailsSheet extends StatelessWidget {
                           color: instituicao.themeColor,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.xxs),
                       Text(
                         instituicao.name,
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                       ),
                       if (instituicao.subcategory != null) ...[
-                        const SizedBox(height: 2),
+                        const SizedBox(height: AppSpacing.xxs),
                         Text(instituicao.subcategory!, style: rotulo),
                       ],
                     ],
@@ -832,9 +833,9 @@ class InstitutionDetailsSheet extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _SeloVerificacao(instituicao: instituicao),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.xs),
 
             // Endereço
             ListTile(
@@ -882,18 +883,18 @@ class InstitutionDetailsSheet extends StatelessWidget {
 
             // Serviços Oferecidos
             if (instituicao.services.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               const Text(
                 'Serviços disponíveis:',
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
                 children: instituicao.servicesLabels.map((label) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
                     decoration: BoxDecoration(
                       color: AppColors.background,
                       borderRadius: BorderRadius.circular(8),
@@ -914,16 +915,16 @@ class InstitutionDetailsSheet extends StatelessWidget {
 
             // Fonte oficial
             if (instituicao.sourceUrl != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.md),
               InkWell(
                 onTap: () => SupportNetworkService.abrirFonte(instituicao.sourceUrl!),
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   child: Row(
                     children: [
                       const Icon(Icons.open_in_new_rounded, size: 16, color: AppColors.primary),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.xs),
                       Expanded(
                         child: Text(
                           'Fonte: ${instituicao.sourceName ?? 'página oficial'}',
@@ -940,7 +941,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
               ),
             ],
 
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xl),
 
             // Ações principais
             Row(
@@ -952,12 +953,12 @@ class InstitutionDetailsSheet extends StatelessWidget {
                       icon: const Icon(Icons.phone_rounded),
                       label: const Text('Ligar'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.sm),
                 ],
                 Expanded(
                   child: FilledButton.icon(
@@ -966,7 +967,7 @@ class InstitutionDetailsSheet extends StatelessWidget {
                     label: const Text('Como chegar'),
                     style: FilledButton.styleFrom(
                       backgroundColor: instituicao.themeColor,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                   ),
@@ -1004,7 +1005,7 @@ class _CategoryChip extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
           decoration: BoxDecoration(
             color: selected ? AppColors.primary : AppColors.surface,
             borderRadius: BorderRadius.circular(20),
@@ -1030,7 +1031,7 @@ class _CategoryChip extends StatelessWidget {
                 size: 16,
                 color: selected ? Colors.white : AppColors.textSecondary,
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: AppSpacing.xs),
               Text(
                 label,
                 style: TextStyle(

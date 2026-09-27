@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../home/presentation/pages/home_page.dart';
 
 class TrustedContactPage extends StatefulWidget {
@@ -55,12 +56,12 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
           child: Form(
             key: _formKey,
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
               children: [
                 // ── Cabeçalho com progresso ─────────────────────────────
                 const _StepHeader(currentStep: 1, totalSteps: 2),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: AppSpacing.xxl),
 
                 // ── Ícone ilustrativo ───────────────────────────────────
                 Container(
@@ -77,14 +78,14 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.lg),
 
                 // ── Título e subtítulo ──────────────────────────────────
                 Text(
                   'Cadastre uma pessoa de confiança',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
                   'Escolha alguém que você gostaria de avisar no futuro. '
                   'Nenhuma localização ou mensagem será enviada agora.',
@@ -93,7 +94,7 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                       ),
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: AppSpacing.xxl),
 
                 // ── Campos do formulário ────────────────────────────────
                 TextFormField(
@@ -113,7 +114,7 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.md),
 
                 TextFormField(
                   controller: _phoneController,
@@ -133,12 +134,12 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                   },
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.lg),
 
                 // ── Aviso de consentimento ──────────────────────────────
                 _ConsentBanner(),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: AppSpacing.xxl),
 
                 // ── Botão primário (CTA) ────────────────────────────────
                 FilledButton.icon(
@@ -147,7 +148,7 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                   label: const Text('Salvar contato'),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.sm),
 
                 // ── Botão secundário ────────────────────────────────────
                 TextButton(
@@ -194,7 +195,7 @@ class _StepHeader extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(width: 14),
+        const SizedBox(width: AppSpacing.md),
 
         // Barra de progresso
         Expanded(
@@ -208,7 +209,7 @@ class _StepHeader extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.xs),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: Row(
@@ -217,7 +218,7 @@ class _StepHeader extends StatelessWidget {
                     return Expanded(
                       child: Container(
                         height: 4,
-                        margin: EdgeInsets.only(right: index < totalSteps - 1 ? 4 : 0),
+                        margin: EdgeInsets.only(right: index < totalSteps - 1 ? AppSpacing.xxs : 0),
                         decoration: BoxDecoration(
                           color: isActive ? AppColors.pink : AppColors.border,
                           borderRadius: BorderRadius.circular(4),
@@ -241,7 +242,7 @@ class _ConsentBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.blueSoft,
         borderRadius: BorderRadius.circular(16),
@@ -260,7 +261,7 @@ class _ConsentBanner extends StatelessWidget {
               size: 20,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               'Você terá controle antes de qualquer compartilhamento. '
