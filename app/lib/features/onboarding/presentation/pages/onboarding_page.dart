@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../../../app/app.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -72,12 +73,18 @@ class OnboardingPage extends StatelessWidget {
                     Column(
                       children: [
                         FilledButton(
-                          onPressed: () => Navigator.pushReplacementNamed(context, TrustedContactPage.routeName),
+                          onPressed: () {
+                            BoasVindas.marcarComoVista();
+                            Navigator.pushReplacementNamed(context, TrustedContactPage.routeName);
+                          },
                           child: const Text('Configurar aplicativo'),
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         OutlinedButton(
-                          onPressed: () => Navigator.pushReplacementNamed(context, HomePage.routeName),
+                          onPressed: () {
+                            BoasVindas.marcarComoVista();
+                            Navigator.pushReplacementNamed(context, HomePage.routeName);
+                          },
                           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                           child: const Text('Acessar ajuda agora'),
                         ),

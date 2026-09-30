@@ -1,4 +1,4 @@
-/// Camada de dados do Rede de Apoio — tudo o que o front precisa importar.
+/// Camada de dados do Sussurro — tudo o que o front precisa importar.
 ///
 /// ```dart
 /// import 'package:rede_apoio/api.dart';

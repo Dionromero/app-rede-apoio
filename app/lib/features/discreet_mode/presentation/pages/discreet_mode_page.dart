@@ -8,7 +8,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/pressable.dart';
 
-/// Escolha do ícone da tela inicial: o da Rede de Apoio ou o disfarce.
+/// Escolha do ícone da tela inicial: o do Sussurro ou o disfarce.
 class DiscreetModePage extends StatefulWidget {
   const DiscreetModePage({super.key});
 
@@ -48,7 +48,7 @@ class _DiscreetModePageState extends State<DiscreetModePage> {
             !ok
                 ? 'Não foi possível trocar o ícone neste aparelho.'
                 : escolha.ehPadrao
-                    ? 'Pronto. O ícone da Rede de Apoio volta em alguns segundos.'
+                    ? 'Pronto. O ícone do Sussurro volta em alguns segundos.'
                     : 'Pronto. Em alguns segundos o app aparece como "${escolha.nome}".',
           ),
         ),

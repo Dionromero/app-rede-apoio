@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 /// Abre WhatsApp ou SMS com uma mensagem pronta para um número.
 ///
 /// O envio final é SEMPRE confirmado pela usuária no app de mensagens:
-/// o Rede de Apoio não envia nada sozinho.
+/// o Sussurro não envia nada sozinho.
 class ContactMessenger {
   const ContactMessenger._();
 

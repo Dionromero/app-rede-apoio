@@ -27,6 +27,10 @@ class LocationShareController extends ChangeNotifier {
   LocationShareController({LocationShareRepository? repository})
       : _repo = repository ?? LocationShareRepository.instance;
 
+  /// Instância do app inteiro: o compartilhamento continua enquanto a usuária
+  /// navega entre as telas (a Home mostra uma faixa com "Parar").
+  static final instancia = LocationShareController();
+
   final LocationShareRepository _repo;
 
   LocationShareStatus _status = LocationShareStatus.inativo;
@@ -39,6 +43,10 @@ class LocationShareController extends ChangeNotifier {
 
   LocationShareStatus get status => _status;
   LocationShareSession? get sessao => _sessao;
+
+  /// Com quem o compartilhamento atual foi iniciado.
+  TrustedContact? get contato => _contato;
+  TrustedContact? _contato;
   DateTime? get ultimoEnvio => _ultimoEnvio;
   String? get mensagemErro => _mensagemErro;
   bool get emAndamento =>
@@ -63,6 +71,7 @@ class LocationShareController extends ChangeNotifier {
     }
 
     _mensagemErro = null;
+    _contato = contato;
     _definir(LocationShareStatus.iniciando);
 
     try {

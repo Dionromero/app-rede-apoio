@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rede_apoio/app/app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
@@ -38,5 +39,12 @@ void main() {
 
     expect(find.text('Maria silva'), findsOneWidget);
     expect(find.text('(41) 99999-8888'), findsOneWidget);
+  });
+
+  test('boas-vindas: marca como vista e lembra', () async {
+    SharedPreferences.setMockInitialValues({});
+    expect(await BoasVindas.jaVista(), isFalse);
+    await BoasVindas.marcarComoVista();
+    expect(await BoasVindas.jaVista(), isTrue);
   });
 }

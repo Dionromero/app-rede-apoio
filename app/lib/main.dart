@@ -6,5 +6,5 @@ import 'core/config/supabase_config.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseConfig.initialize();
-  runApp(const RedeApoioApp());
+  runApp(RedeApoioApp(mostrarBoasVindas: !await BoasVindas.jaVista()));
 }

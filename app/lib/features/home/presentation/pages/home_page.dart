@@ -7,6 +7,7 @@ import '../../../../core/config/app_config.dart';
 import '../../../../core/services/discreet_mode_service.dart';
 import '../../../../core/services/emergency_service.dart';
 import '../../../../core/services/location_service.dart';
+import '../../../../core/services/quick_exit_service.dart';
 import '../../../../core/services/share_location_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -15,11 +16,17 @@ import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/support_network_map.dart';
 import '../../../discreet_mode/presentation/pages/discreet_mode_page.dart';
 import '../../../guidance/presentation/pages/guidance_page.dart';
+import '../../../location_share/data/location_share_controller.dart';
+import '../../../location_share/domain/location_share_session.dart';
+import '../../../location_share/presentation/pages/live_share_page.dart';
 import '../../../support_network/data/support_network_service.dart';
 import '../../../support_network/domain/models/support_institution.dart';
 import '../../../support_network/presentation/pages/support_map_page.dart';
 import '../../../support_network/presentation/pages/support_network_page.dart';
+import '../../../trusted_contact/data/trusted_contact_repository.dart';
+import '../../../trusted_contact/domain/trusted_contact.dart';
 import '../../../trusted_contact/presentation/pages/trusted_contact_page.dart';
+import '../widgets/enviar_localizacao_sheet.dart';
 import '../widgets/filtros_mapa.dart';
 
 class HomePage extends StatefulWidget {
@@ -131,23 +138,70 @@ class _HomePageState extends State<HomePage> {
       ..showSnackBar(SnackBar(content: Text(texto), duration: duracao));
   }
 
+  /// Envia a localização para uma pessoa de confiança cadastrada.
+  /// Uma pessoa: vai direto. Várias: a usuária escolhe (ou avisa todas por SMS).
+  /// Nenhuma: abre o seletor do WhatsApp e sugere cadastrar alguém.
   Future<void> _enviarLocalizacao() async {
+    final contatos = await TrustedContactRepository.instance.carregarTodos();
+    if (!mounted) return;
+
+    // Com o ao vivo disponível, sempre mostra a folha (para escolher o modo).
+    final aoVivo = AppConfig.compartilhamentoAoVivoDisponivel;
+    final DestinoLocalizacao? destino = switch (contatos.length) {
+      0 => const ParaOutroNoWhatsApp(),
+      1 when !aoVivo => ParaContato(contatos.first),
+      _ => await escolherDestinoLocalizacao(context, contatos, aoVivoDisponivel: aoVivo),
+    };
+    if (destino == null || !mounted) return;
+
+    if (destino is AoVivoCom) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(builder: (_) => LiveSharePage(contato: destino.contato)),
+      );
+      return;
+    }
+
     _aviso('Obtendo sua localização…', duracao: const Duration(seconds: 10));
-    final resultado = await ShareLocationService.enviarParaQualquerContato();
+    final mensagem = await ShareLocationService.prepararMensagem();
     if (!mounted) return;
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    if (mensagem == null) {
+      _aviso('Não foi possível obter sua localização. Verifique se o GPS está ativo e se a permissão foi concedida.',
+          duracao: const Duration(seconds: 5));
+      return;
+    }
+
+    final resultado = switch (destino) {
+      ParaContato(:final contato) => await _whatsappOuSms(mensagem, contato),
+      ParaTodosPorSms(contatos: final todas) => await ShareLocationService.abrirSms(
+          mensagem,
+          [for (final c in todas) c.phone],
+        ),
+      ParaOutroNoWhatsApp() => await ShareLocationService.abrirWhatsApp(mensagem),
+      AoVivoCom() => ShareResult.sucesso, // tratado acima
+    };
+    if (!mounted) return;
 
     switch (resultado) {
       case ShareResult.sucesso:
-        break;
+        if (contatos.isEmpty) {
+          _aviso('Dica: cadastre uma pessoa de confiança para enviar com um toque.');
+        }
       case ShareResult.semLocalizacao:
-        _aviso('Não foi possível obter sua localização. Verifique se o GPS está ativo e se a permissão foi concedida.',
-            duracao: const Duration(seconds: 5));
+        break;
       case ShareResult.whatsappIndisponivel:
         _aviso('WhatsApp não encontrado. Verifique se está instalado.');
       case ShareResult.falhaGeral:
         _aviso('Não foi possível compartilhar a localização neste momento.');
     }
+  }
+
+  /// WhatsApp da pessoa; se o WhatsApp não abrir, SMS.
+  Future<ShareResult> _whatsappOuSms(String mensagem, TrustedContact contato) async {
+    final r = await ShareLocationService.abrirWhatsApp(mensagem, telefone: contato.phone);
+    if (r != ShareResult.whatsappIndisponivel) return r;
+    return ShareLocationService.abrirSms(mensagem, [contato.phone]);
   }
 
   String get _saudacao {
@@ -195,16 +249,37 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'REDE DE APOIO',
+                        'SUSSURRO',
                         style: t.labelSmall?.copyWith(color: AppColors.textPrimary, letterSpacing: 1.6),
                       ),
                     ),
-                    _SaidaRapida(onTap: () => _aviso('Saída rápida: em construção nesta versão.')),
+                    const _SaidaRapida(onTap: QuickExitService.sair),
                   ],
                 ),
                 0,
               ),
               const SizedBox(height: AppSpacing.xl),
+
+              // ── Compartilhamento ao vivo em andamento ───────────────
+              ListenableBuilder(
+                listenable: LocationShareController.instancia,
+                builder: (context, _) {
+                  final ctrl = LocationShareController.instancia;
+                  final contato = ctrl.contato;
+                  if (!ctrl.emAndamento || contato == null) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                    child: _FaixaAoVivo(
+                      nome: contato.name,
+                      instavel: ctrl.status == LocationShareStatus.instavel,
+                      onVer: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(builder: (_) => LiveSharePage(contato: contato)),
+                      ),
+                    ),
+                  );
+                },
+              ),
 
               // ── Saudação ─────────────────────────────────────────────
               entrada(Text(_saudacao, style: AppFonts.serif(size: 38, peso: 520)), 1),
@@ -314,7 +389,7 @@ class _HomePageState extends State<HomePage> {
                       cor: AppColors.moss,
                       fundo: AppColors.mossSoft,
                       titulo: 'Enviar minha localização',
-                      descricao: 'Abre o WhatsApp com sua posição atual.',
+                      descricao: 'Para suas pessoas de confiança, pelo WhatsApp ou SMS.',
                       onTap: _enviarLocalizacao,
                     ),
                     _Acao(
@@ -363,6 +438,45 @@ class _HomePageState extends State<HomePage> {
 }
 
 // ── Peças da tela ────────────────────────────────────────────────────────────
+
+/// Faixa na Home enquanto a localização está sendo compartilhada ao vivo.
+class _FaixaAoVivo extends StatelessWidget {
+  const _FaixaAoVivo({required this.nome, required this.instavel, required this.onVer});
+
+  final String nome;
+  final bool instavel;
+  final VoidCallback onVer;
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: onVer,
+      semanticsLabel: 'Compartilhando localização ao vivo com $nome. Toque para ver ou parar.',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        decoration: BoxDecoration(
+          color: instavel ? AppColors.wineSoft : AppColors.mossSoft,
+          borderRadius: BorderRadius.circular(AppShape.radius),
+        ),
+        child: Row(
+          children: [
+            Icon(instavel ? Icons.wifi_off_rounded : Icons.podcasts_rounded,
+                color: instavel ? AppColors.wine : AppColors.moss),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                instavel ? 'Tentando enviar sua posição para $nome' : 'Compartilhando ao vivo com $nome',
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+            const Text('Ver', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.ink)),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.ink),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _Monograma extends StatelessWidget {
   const _Monograma();

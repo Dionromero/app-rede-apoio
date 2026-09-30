@@ -25,7 +25,7 @@ void main() {
   });
 
   test('todos os disfarces têm atalho, nome e imagem únicos', () {
-    final todos = DiscreetModeService.todos;
+    const todos = DiscreetModeService.todos;
     expect(todos.map((d) => d.atalho).toSet(), hasLength(todos.length));
     expect(todos.map((d) => d.nome).toSet(), hasLength(todos.length));
     expect(DiscreetModeService.porAtalho('desconhecido').ehPadrao, isTrue);
@@ -48,7 +48,7 @@ void main() {
 
     // O ícone original fica no fim da lista, fora da tela no teste:
     // rolar a lista principal (a primeira Scrollable) até ele.
-    final original = find.text('Rede de Apoio');
+    final original = find.text('Sussurro');
     await tester.scrollUntilVisible(original, 300, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
     await tester.tap(original);

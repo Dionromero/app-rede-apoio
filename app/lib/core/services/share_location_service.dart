@@ -7,7 +7,7 @@ import 'location_service.dart';
 ///
 /// O app prepara a mensagem com link do Google Maps e abre o WhatsApp
 /// ou SMS. O envio final é confirmado pela usuária no próprio app de
-/// mensagens — o Rede de Apoio não controla o envio.
+/// mensagens — o Sussurro não controla o envio.
 class ShareLocationService {
   const ShareLocationService._();
 
@@ -135,6 +135,34 @@ class ShareLocationService {
     }
 
     return ShareResult.whatsappIndisponivel;
+  }
+
+  /// Obtém a posição e monta a mensagem. `null` se não houver localização.
+  static Future<String?> prepararMensagem() async {
+    final posicao = await LocationService.obterPosicaoAtual();
+    if (posicao == null) return null;
+    return _montarMensagem(LocationService.gerarLinkMaps(posicao.latitude, posicao.longitude));
+  }
+
+  /// Abre o WhatsApp com a [mensagem]. Com [telefone] (formato '5541999998888'),
+  /// já abre a conversa com a pessoa; sem ele, abre o seletor de contatos.
+  static Future<ShareResult> abrirWhatsApp(String mensagem, {String? telefone}) async {
+    final uri = Uri.parse('https://wa.me/${telefone ?? ''}?text=${Uri.encodeComponent(mensagem)}');
+    try {
+      if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return ShareResult.sucesso;
+    } catch (_) {}
+    return ShareResult.whatsappIndisponivel;
+  }
+
+  /// Abre o app de SMS com a [mensagem] para um ou mais [telefones]
+  /// (o Android aceita vários destinatários separados por vírgula).
+  static Future<ShareResult> abrirSms(String mensagem, List<String> telefones) async {
+    final destino = telefones.map((t) => '+${t.replaceAll(RegExp(r'\D'), '')}').join(',');
+    final uri = Uri.parse('sms:$destino?body=${Uri.encodeComponent(mensagem)}');
+    try {
+      if (await launchUrl(uri)) return ShareResult.sucesso;
+    } catch (_) {}
+    return ShareResult.falhaGeral;
   }
 
   static String _montarMensagem(String linkMaps) {

@@ -27,7 +27,7 @@ abstract final class DiscreetModeService {
 
   static const padrao = Disfarce(
     atalho: 'AtalhoPadrao',
-    nome: 'Rede de Apoio',
+    nome: 'Sussurro',
     imagem: 'assets/brand/icone-192.png',
   );
 

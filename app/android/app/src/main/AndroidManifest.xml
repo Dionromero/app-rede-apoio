@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:label="Rede de Apoio"
+        android:label="Sussurro"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -36,7 +36,7 @@
         <activity-alias
             android:name=".AtalhoPadrao"
             android:targetActivity=".MainActivity"
-            android:label="Rede de Apoio"
+            android:label="Sussurro"
             android:icon="@mipmap/ic_launcher"
             android:enabled="true"
             android:exported="true">

@@ -20,6 +20,18 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // Saída rápida: fecha o app e o tira da lista de apps recentes,
+        // para a última tela não aparecer na miniatura.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "rede_apoio/sistema").setMethodCallHandler { call, result ->
+            if (call.method == "sair") {
+                result.success(true)
+                finishAndRemoveTask()
+            } else {
+                result.notImplemented()
+            }
+        }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, canal).setMethodCallHandler { call, result ->
             when (call.method) {
                 "atual" -> result.success(atalhoAtivo())
