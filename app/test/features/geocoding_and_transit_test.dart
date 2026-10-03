@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:rede_apoio/api.dart';
 
 void main() {
@@ -79,7 +78,7 @@ void main() {
     });
 
     test('RouteStep cria passo de transporte público com dados da linha', () {
-      final step = RouteStep(
+      const step = RouteStep(
         instrucao: 'Pegue o ônibus 203 - Santa Cândida',
         distanciaM: 3500,
         duracaoS: 720,

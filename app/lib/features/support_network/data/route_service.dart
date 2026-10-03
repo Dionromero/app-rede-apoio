@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart' show LatLng;
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../core/config/supabase_config.dart';
@@ -43,52 +42,53 @@ class RouteService {
     final guardada = _cache[chave];
     if (guardada != null) return guardada;
 
-    // Transporte público (Ônibus / Linhas da URBS de Curitiba)
-    if (modo == TravelMode.onibus) {
-      if (!AppConfig.temGoogleMapsApiKey) {
-        throw const RouteException(
-          'onibus_sem_chave',
-          'Para ver as linhas de ônibus e horários em tempo real, use "Abrir no GPS do celular".',
-        );
+    final client = SupabaseConfig.client;
+
+    // 1. Tenta calcular via Supabase Edge Function `route` (que usa as chaves secretas do servidor)
+    if (client != null) {
+      try {
+        final resposta = await client.functions.invoke(
+          'route',
+          body: {
+            'de': {'lat': de.latitude, 'lng': de.longitude},
+            'para': {'lat': para.latitude, 'lng': para.longitude},
+            'modo': modo.api,
+          },
+        ).timeout(const Duration(seconds: 15));
+
+        final dados = resposta.data;
+        if (dados is Map) {
+          final plano = RoutePlan.fromJson(Map<String, dynamic>.from(dados));
+          if (plano.pontos.length >= 2) {
+            _cache[chave] = plano;
+            return plano;
+          }
+        }
+      } catch (e) {
+        debugPrint('Supabase route falhou ou não configurado, tentando alternativa: $e');
       }
-      final planoTransit = await _calcularGoogleTransit(de, para, httpClient: httpClient);
-      _cache[chave] = planoTransit;
-      return planoTransit;
     }
 
-    final client = SupabaseConfig.client;
+    // 2. Se for modo ônibus e o Supabase não respondeu, tenta direto pelo Google Maps (se houver chave local)
+    if (modo == TravelMode.onibus) {
+      if (AppConfig.temGoogleMapsApiKey) {
+        try {
+          final planoTransit = await _calcularGoogleTransit(de, para, httpClient: httpClient);
+          _cache[chave] = planoTransit;
+          return planoTransit;
+        } catch (_) {}
+      }
+      throw const RouteException(
+        'onibus_sem_chave',
+        'Para ver as linhas de ônibus e horários em tempo real, use "Abrir no GPS do celular".',
+      );
+    }
+
     if (client == null) {
       throw const RouteException('offline', 'Sem conexão para calcular a rota. Use "Abrir no GPS".');
     }
 
-    try {
-      final resposta = await client.functions.invoke(
-        'route',
-        body: {
-          'de': {'lat': de.latitude, 'lng': de.longitude},
-          'para': {'lat': para.latitude, 'lng': para.longitude},
-          'modo': modo.api,
-        },
-      ).timeout(const Duration(seconds: 15));
-
-      final dados = resposta.data;
-      if (dados is! Map) {
-        throw const RouteException('desconhecido', 'Resposta inesperada do serviço de rotas.');
-      }
-      final plano = RoutePlan.fromJson(Map<String, dynamic>.from(dados));
-      if (plano.pontos.length < 2) {
-        throw const RouteException('rota_nao_encontrada', 'Não encontramos um caminho até este local.');
-      }
-      _cache[chave] = plano;
-      return plano;
-    } on RouteException {
-      rethrow;
-    } on FunctionException catch (e) {
-      throw traduzirErro(e.status, e.details);
-    } catch (e) {
-      debugPrint('Falha ao calcular rota: $e');
-      throw const RouteException('offline', 'Não foi possível calcular a rota agora. Use "Abrir no GPS".');
-    }
+    throw const RouteException('offline', 'Não foi possível calcular a rota agora. Use "Abrir no GPS".');
   }
 
   /// Consulta a Google Directions API com mode=transit para ônibus e trens.

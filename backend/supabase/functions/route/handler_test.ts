@@ -137,3 +137,67 @@ test("distância entre centro e Casa da Mulher ≈ 3,3 km", () => {
   const d = distanciaKm(CENTRO, CASA_MULHER);
   assert.ok(d > 3 && d < 4, String(d));
 });
+
+test("modo onibus: sem googleApiKey responde 503", async () => {
+  const r = await handleRequest(
+    req({ de: CENTRO, para: CASA_MULHER, modo: "onibus" }),
+    { apiKey: "k", fetch: fetchFalso(200, {}) },
+  );
+  assert.equal(r.status, 503);
+  const json = await r.json();
+  assert.equal(json.erro, "rotas_indisponiveis");
+});
+
+test("modo onibus: chama Google Directions e devolve passos de transit", async () => {
+  let urlChamada = "";
+  const googleMock = {
+    status: "OK",
+    routes: [{
+      overview_polyline: { points: "_p~iF~ps|U_ulLnnqC_mqNvxq`@" },
+      legs: [{
+        distance: { value: 4500 },
+        duration: { value: 1200 },
+        steps: [
+          {
+            travel_mode: "WALKING",
+            html_instructions: "Caminhe até o tubo",
+            distance: { value: 200 },
+            duration: { value: 150 },
+          },
+          {
+            travel_mode: "TRANSIT",
+            html_instructions: "Pegue o ônibus 203",
+            distance: { value: 4300 },
+            duration: { value: 1050 },
+            transit_details: {
+              line: { short_name: "203", name: "Santa Cândida / Capão Raso" },
+              departure_stop: { name: "Tubo Rui Barbosa" },
+              arrival_stop: { name: "Tubo CMB" },
+              num_stops: 5,
+            },
+          },
+        ],
+      }],
+    }],
+  };
+
+  const r = await handleRequest(
+    req({ de: CENTRO, para: CASA_MULHER, modo: "onibus" }),
+    {
+      apiKey: "k",
+      googleApiKey: "google_secret_key",
+      fetch: fetchFalso(200, googleMock, (u) => { urlChamada = u; }),
+    },
+  );
+
+  assert.equal(r.status, 200);
+  assert.ok(urlChamada.includes("mode=transit"));
+  assert.ok(urlChamada.includes("key=google_secret_key"));
+  const json = await r.json();
+  assert.equal(json.modo, "onibus");
+  assert.equal(json.distancia_m, 4500);
+  assert.equal(json.passos.length, 2);
+  assert.equal(json.passos[1].is_transit, true);
+  assert.equal(json.passos[1].linha_transit, "203 (Santa Cândida / Capão Raso)");
+  assert.equal(json.passos[1].num_paradas, 5);
+});
