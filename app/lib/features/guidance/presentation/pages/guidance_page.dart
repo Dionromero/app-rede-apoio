@@ -34,7 +34,8 @@ class _GuidancePageState extends State<GuidancePage> {
   };
 
   static String nomeCategoria(String id) =>
-      _nomesCategorias[id] ?? (id.isEmpty ? 'Outros' : id[0].toUpperCase() + id.substring(1));
+      _nomesCategorias[id] ??
+      (id.isEmpty ? 'Outros' : id[0].toUpperCase() + id.substring(1));
 
   AppContentRepository get _repo => AppContentRepository.instance;
 
@@ -65,8 +66,9 @@ class _GuidancePageState extends State<GuidancePage> {
     final conteudo = _conteudo;
     final guias = conteudo?.guides ?? const <Guide>[];
     final categorias = <String>{for (final g in guias) g.category}.toList();
-    final filtrados =
-        _categoria == 'todas' ? guias : guias.where((g) => g.category == _categoria).toList();
+    final filtrados = _categoria == 'todas'
+        ? guias
+        : guias.where((g) => g.category == _categoria).toList();
     final algumSemRevisao = guias.any((g) => !g.isReviewed);
 
     return Scaffold(
@@ -77,7 +79,8 @@ class _GuidancePageState extends State<GuidancePage> {
           : RefreshIndicator(
               onRefresh: _carregar,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, AppSpacing.screen, AppSpacing.xl),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.screen,
+                    AppSpacing.xs, AppSpacing.screen, AppSpacing.xl),
                 children: [
                   Text(
                     'Informação para você entender seus direitos e decidir os próximos passos.',
@@ -88,19 +91,23 @@ class _GuidancePageState extends State<GuidancePage> {
                   if (algumSemRevisao)
                     const _Aviso(
                       icon: Icons.fact_check_outlined,
-                      texto: 'Conteúdo em revisão por profissionais da rede de atendimento. '
+                      texto:
+                          'Conteúdo em revisão por profissionais da rede de atendimento. '
                           'Em caso de dúvida, ligue 180.',
                     ),
-                  if (conteudo != null && conteudo.origin != ContentOrigin.servidor)
+                  if (conteudo != null &&
+                      conteudo.origin != ContentOrigin.servidor)
                     const _Aviso(
                       icon: Icons.cloud_off_rounded,
-                      texto: 'Sem conexão: mostrando o conteúdo salvo no aparelho.',
+                      texto:
+                          'Sem conexão: mostrando o conteúdo salvo no aparelho.',
                     ),
 
                   // Filtro por tema: mesmas abas da Home, do mapa e da lista.
                   CategoryTabs(
                     itens: [
-                      for (final id in ['todas', ...categorias]) (id, id == 'todas' ? 'Todos' : nomeCategoria(id)),
+                      for (final id in ['todas', ...categorias])
+                        (id, id == 'todas' ? 'Todos' : nomeCategoria(id)),
                     ],
                     selecionado: _categoria,
                     onSelecionar: (id) => setState(() => _categoria = id),
@@ -150,14 +157,18 @@ class _GuiaCard extends StatelessWidget {
                   height: 44,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: guia.category == 'emergencia' ? AppColors.wineSoft : AppColors.inkSoft,
+                    color: guia.category == 'emergencia'
+                        ? AppColors.wineSoft
+                        : AppColors.inkSoft,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: ExcludeSemantics(
                     child: Icon(
                       GuideIcons.de(guia),
                       size: 22,
-                      color: guia.category == 'emergencia' ? AppColors.wine : AppColors.ink,
+                      color: guia.category == 'emergencia'
+                          ? AppColors.wine
+                          : AppColors.ink,
                     ),
                   ),
                 ),
@@ -167,12 +178,15 @@ class _GuiaCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _GuidancePageState.nomeCategoria(guia.category).toUpperCase(),
+                        _GuidancePageState.nomeCategoria(guia.category)
+                            .toUpperCase(),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.4,
-                          color: guia.category == 'emergencia' ? AppColors.wine : AppColors.ink,
+                          color: guia.category == 'emergencia'
+                              ? AppColors.wine
+                              : AppColors.ink,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xxs),
@@ -187,12 +201,16 @@ class _GuiaCard extends StatelessWidget {
                       const SizedBox(height: AppSpacing.xxs),
                       Text(
                         guia.summary,
-                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                        style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            height: 1.4),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                const Icon(Icons.chevron_right_rounded,
+                    color: AppColors.textSecondary),
               ],
             ),
           ),
@@ -224,7 +242,9 @@ class _Aviso extends StatelessWidget {
           Icon(icon, size: 18, color: AppColors.wine),
           const SizedBox(width: AppSpacing.xs),
           Expanded(
-            child: Text(texto, style: const TextStyle(fontSize: 12.5, color: AppColors.wineDeep)),
+            child: Text(texto,
+                style:
+                    const TextStyle(fontSize: 12.5, color: AppColors.wineDeep)),
           ),
         ],
       ),
@@ -252,6 +272,7 @@ class _RodapeEmergencia extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: () => EmergencyService.confirmarELigar180(context),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.wineSoft),
             icon: const Icon(Icons.support_agent_rounded, size: 18),
             label: const Text('Ligue 180'),
           ),
