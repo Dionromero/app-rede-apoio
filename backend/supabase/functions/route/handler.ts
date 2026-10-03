@@ -302,7 +302,10 @@ export async function handleRequest(req: Request, deps: Dependencias): Promise<R
       return erro(404, "rota_nao_encontrada", "Nenhuma linha de transporte público direta encontrada.");
     }
     if (dados.status !== "OK") {
-      return erro(502, "erro_no_servico", "Não foi possível calcular a rota de ônibus.");
+      const msg = dados.status === "REQUEST_DENIED"
+        ? "Chave do Google não autorizada para a Directions API. Verifique as restrições da chave no Google Cloud."
+        : "Não foi possível calcular a rota de ônibus.";
+      return erro(502, "erro_no_servico", msg);
     }
 
     try {
