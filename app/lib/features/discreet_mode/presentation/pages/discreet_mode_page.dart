@@ -86,11 +86,16 @@ class _DiscreetModePageState extends State<DiscreetModePage> {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, AppSpacing.screen, AppSpacing.xxl),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs,
+              AppSpacing.screen, AppSpacing.xxl),
           children: [
             Text(
               'Esconda o app de quem mexe no seu celular.',
-              style: AppFonts.serif(size: 26, peso: 600, color: AppColors.textPrimary, height: 1.15),
+              style: AppFonts.serif(
+                  size: 26,
+                  peso: 600,
+                  color: AppColors.textPrimary,
+                  height: 1.15),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
@@ -102,12 +107,15 @@ class _DiscreetModePageState extends State<DiscreetModePage> {
             if (!suportado)
               const _Nota(
                 icone: Icons.info_outline_rounded,
-                texto: 'A troca de ícone está disponível no app instalado no Android.',
+                texto:
+                    'A troca de ícone está disponível no app instalado no Android.',
               )
             else ...[
               Text('Disfarces', style: t.titleMedium),
               const SizedBox(height: AppSpacing.xs),
-              _grade(DiscreetModeService.disfarces).animate().fadeIn(duration: AppShape.medio),
+              _grade(DiscreetModeService.disfarces)
+                  .animate()
+                  .fadeIn(duration: AppShape.medio),
               const SizedBox(height: AppSpacing.lg),
               Text('Ícone original', style: t.titleMedium),
               const SizedBox(height: AppSpacing.xs),
@@ -118,23 +126,27 @@ class _DiscreetModePageState extends State<DiscreetModePage> {
             const SizedBox(height: AppSpacing.xs),
             const _Nota(
               icone: Icons.schedule_rounded,
-              texto: 'O ícone pode levar alguns segundos para mudar. Em alguns celulares o '
+              texto:
+                  'O ícone pode levar alguns segundos para mudar. Em alguns celulares o '
                   'atalho sai da tela inicial: procure o novo nome na lista de apps e '
                   'arraste de volta.',
             ),
             const _Nota(
               icone: Icons.touch_app_outlined,
-              texto: 'Ao abrir pelo disfarce, o app abre normalmente. O disfarce protege de '
+              texto:
+                  'Ao abrir pelo disfarce, o app abre normalmente. O disfarce protege de '
                   'uma olhada rápida na tela, não de quem abre o app.',
             ),
             const _Nota(
               icone: Icons.logout_rounded,
-              texto: 'Se alguém se aproximar, toque em "Sair" no topo da tela inicial: '
+              texto:
+                  'Se alguém se aproximar, toque em "Sair" no topo da tela inicial: '
                   'o app fecha na hora.',
             ),
             const _Nota(
               icone: Icons.chat_bubble_outline_rounded,
-              texto: 'Mensagens com sua localização ficam no WhatsApp ou no SMS. '
+              texto:
+                  'Mensagens com sua localização ficam no WhatsApp ou no SMS. '
                   'Se for preciso, apague a conversa depois de enviar.',
             ),
           ],
@@ -170,9 +182,12 @@ class _OpcaoIcone extends StatelessWidget {
         child: AnimatedContainer(
           duration: AppShape.medio,
           curve: AppShape.curva,
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(
+              vertical: AppSpacing.md, horizontal: AppSpacing.sm),
           decoration: BoxDecoration(
-            color: selecionado ? AppColors.paper : AppColors.sandDeep.withValues(alpha: 0.5),
+            color: selecionado
+                ? AppColors.paper
+                : AppColors.sandDeep.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(AppShape.radiusLg),
             border: Border.all(
               color: selecionado ? AppColors.wine : AppColors.hairline,
@@ -184,29 +199,60 @@ class _OpcaoIcone extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(18),
-                child: Image.asset(imagem, width: 64, height: 64),
+                child: Image.asset(
+                  imagem,
+                  width: 64,
+                  height: 64,
+                ),
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(nome, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Flexible(
+                flex: 1,
+                child: Text(
+                  nome,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
               const SizedBox(height: AppSpacing.xxs),
-              SizedBox(
-                height: 20,
+              Flexible(
+                flex: 1,
                 child: carregando
                     ? const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.wine),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.wine,
+                        ),
                       )
                     : selecionado
                         ? const Row(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.check_circle_rounded, size: 16, color: AppColors.wine),
+                              Icon(
+                                Icons.check_circle_rounded,
+                                size: 16,
+                                color: AppColors.wine,
+                              ),
                               SizedBox(width: 4),
-                              Text('Em uso', style: TextStyle(fontSize: 13, color: AppColors.wine)),
+                              Text(
+                                'Em uso',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.wine,
+                                ),
+                              ),
                             ],
-                          ).animate().fadeIn(duration: AppShape.rapido)
-                        : null,
+                          ).animate().fadeIn(
+                              duration: AppShape.rapido,
+                            )
+                        : const SizedBox.shrink(),
               ),
             ],
           ),
@@ -233,12 +279,18 @@ class _Nota extends StatelessWidget {
             width: 32,
             height: 32,
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: AppColors.inkSoft, borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+                color: AppColors.inkSoft,
+                borderRadius: BorderRadius.circular(10)),
             child: Icon(icone, size: 18, color: AppColors.ink),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: Text(texto, style: const TextStyle(fontSize: 14.5, height: 1.45, color: AppColors.textSecondary)),
+            child: Text(texto,
+                style: const TextStyle(
+                    fontSize: 14.5,
+                    height: 1.45,
+                    color: AppColors.textSecondary)),
           ),
         ],
       ),
