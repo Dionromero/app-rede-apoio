@@ -84,8 +84,9 @@ class OnboardingPage extends StatelessWidget {
                           onPressed: () {
                             BoasVindas.marcarComoVista();
                             Navigator.pushReplacementNamed(context, HomePage.routeName);
+                            const ButtonStyle(backgroundColor: WidgetStatePropertyAll(AppColors.wine));
                           },
-                          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52), backgroundColor: AppColors.wineSoft),
                           child: const Text('Acessar ajuda agora'),
                         ),
                         const SizedBox(height: AppSpacing.md),
