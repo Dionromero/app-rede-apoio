@@ -6,7 +6,7 @@ Aplicativo mobile em Flutter/Dart. Visão geral do projeto e fluxograma: [README
 
 - Android validado em emulador; também roda no Chrome (`flutter run -d chrome`) para testes rápidos.
 - iOS ainda não gerado (requer macOS e Xcode).
-- 31 testes passando (`flutter test`).
+- 90 testes passando (`flutter test`).
 
 ## Como está organizado
 
@@ -46,7 +46,12 @@ flutter run -d chrome       # navegador
 flutter build apk --debug
 ```
 
-Variáveis de build (`--dart-define`): `TRACKING_PAGE_URL` (liga a localização ao vivo) e `MAP_TILE_URL` (servidor de mapas). Detalhes no README principal.
+Variáveis de build (`--dart-define`):
+- `GOOGLE_MAPS_API_KEY` (opcional: carrega foto da fachada via Google Street View Static API na ficha da instituição; se omitido, abre panorama 360° gratuito no Google Maps)
+- `TRACKING_PAGE_URL` (liga a localização ao vivo)
+- `MAP_TILE_URL` (servidor de mapas)
+
+Detalhes no README principal.
 
 ## Pacotes e por que estão aqui
 

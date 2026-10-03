@@ -13,6 +13,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/category_tabs.dart';
 import '../../data/support_network_service.dart';
 import '../../domain/models/support_institution.dart';
+import '../widgets/street_view_card.dart';
 
 /// Grupo de categorias exibido como chip. Um chip pode reunir várias
 /// categorias do banco (ex.: "Acolhimento" = CREAS + CRAS + Centro de Referência).
@@ -849,6 +850,11 @@ class InstitutionDetailsSheet extends StatelessWidget {
                 style: valor,
               ),
             ),
+
+            // Fachada no Street View (Google Maps)
+            const SizedBox(height: AppSpacing.xs),
+            StreetViewCard(instituicao: instituicao),
+            const SizedBox(height: AppSpacing.sm),
 
             // Público atendido
             if (instituicao.targetAudience != null)

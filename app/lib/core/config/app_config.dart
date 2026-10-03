@@ -19,6 +19,13 @@ class AppConfig {
 
   static bool get compartilhamentoAoVivoDisponivel => trackingPageUrl.isNotEmpty;
 
+  /// Chave da API do Google Maps (Street View, Geocoding, etc.).
+  /// Passada via `--dart-define=GOOGLE_MAPS_API_KEY=...`.
+  /// Sem a chave, o app oferece o Street View 360° diretamente via link universal.
+  static const googleMapsApiKey = String.fromEnvironment('GOOGLE_MAPS_API_KEY');
+
+  static bool get temGoogleMapsApiKey => googleMapsApiKey.isNotEmpty;
+
   /// Raio máximo da busca "perto de você" (km). Se não houver nada dentro
   /// dele, o app mostra os locais mais próximos e avisa.
   static const raioBuscaKm = 20.0;

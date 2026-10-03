@@ -12,14 +12,14 @@ Piloto: **Curitiba/PR**. Última atualização desta página: 26/09/2026.
 | Camada de dados do app | ✅ Pronta em `app/lib/api.dart`. As telas só consomem. |
 | Tela inicial | ✅ Novo visual (vinho/areia, títulos serifados, animações): botão 190, mapa com pinos e abas, atalhos. |
 | Mapa em tela cheia | ✅ Painel do local ao tocar no pino; **rota no próprio app** (a pé ou de carro, tempo, distância, passo a passo) e "Iniciar navegação no GPS". A rota depende da função `route` publicada (ver backend). |
-| Rede de apoio | ✅ ~90 serviços de Curitiba com coordenadas oficiais (IPPUC): CRAS, CREAS, UPAs 24h, delegacias, Defensoria, Casa da Mulher Brasileira e hospitais de referência. Busca sem acento, filtros, raio de 20 km, selo de verificação, ligar e "como chegar". |
+| Rede de apoio | ✅ ~90 serviços de Curitiba com coordenadas oficiais (IPPUC): CRAS, CREAS, UPAs 24h, delegacias, Defensoria, Casa da Mulher Brasileira e hospitais de referência. Busca sem acento, filtros, raio de 20 km, selo de verificação, foto da fachada e visão 360° (Street View), ligar e "como chegar". |
 | Direitos e orientações | ✅ 7 guias com cache offline e aviso de revisão profissional pendente. |
 | Pessoas de confiança | 🟡 Lista de até 5 pessoas, salva só no aparelho (criptografada). Digitar funciona; "Escolher da agenda" usa o seletor do sistema, sem permissão de contatos, e ainda não foi testado em aparelho. |
 | Enviar localização | 🟡 Envio da localização atual pelo WhatsApp funciona; ainda não usa o contato salvo. |
 | Localização ao vivo | 🟡 Backend e controller prontos; faltam a tela e a página web `/acompanhar`. |
 | Saída rápida | ⬜ A fazer. |
 | Landing page React | ⬜ Planejada, ainda não inicializada. |
-| Testes | ✅ 53 testes Flutter passando; testes do contrato da API em `backend/supabase/tests/api_test.sql`. |
+| Testes | ✅ 90 testes Flutter passando; testes do contrato da API em `backend/supabase/tests/api_test.sql`. |
 
 Legenda: ✅ funcionando · 🟡 parcial · ⬜ a fazer.
 
