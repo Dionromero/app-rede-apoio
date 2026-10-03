@@ -300,7 +300,7 @@ class _HomePageState extends State<HomePage> {
               // ── Mapa ─────────────────────────────────────────────────
               entrada(
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(child: Text('Apoio perto de você', style: t.titleLarge)),
                     TextButton(
