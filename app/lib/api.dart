@@ -18,6 +18,7 @@ export 'core/content/app_content_repository.dart';
 // Ações do aparelho: discador, WhatsApp/SMS, GPS
 export 'core/services/contact_messenger.dart';
 export 'core/services/emergency_service.dart';
+export 'core/services/geocoding_service.dart';
 export 'core/services/location_service.dart';
 export 'core/services/share_location_service.dart';
 

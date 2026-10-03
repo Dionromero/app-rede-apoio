@@ -19,7 +19,7 @@ Piloto: **Curitiba/PR**. Última atualização desta página: 26/09/2026.
 | Localização ao vivo | 🟡 Backend e controller prontos; faltam a tela e a página web `/acompanhar`. |
 | Saída rápida | ⬜ A fazer. |
 | Landing page React | ⬜ Planejada, ainda não inicializada. |
-| Testes | ✅ 90 testes Flutter passando; testes do contrato da API em `backend/supabase/tests/api_test.sql`. |
+| Testes | ✅ 95 testes Flutter passando; testes do contrato da API em `backend/supabase/tests/api_test.sql`. |
 
 Legenda: ✅ funcionando · 🟡 parcial · ⬜ a fazer.
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'geocoding_service.dart';
 import 'location_service.dart';
 
 /// Serviço para compartilhar localização via WhatsApp ou SMS.
@@ -28,12 +29,17 @@ class ShareLocationService {
       return ShareResult.semLocalizacao;
     }
 
+    final endereco = await GeocodingService.obterEndereco(
+      posicao.latitude,
+      posicao.longitude,
+    );
+
     final linkMaps = LocationService.gerarLinkMaps(
       posicao.latitude,
       posicao.longitude,
     );
 
-    final mensagem = _montarMensagem(linkMaps);
+    final mensagem = _montarMensagem(linkMaps, endereco: endereco?.resumo);
     final mensagemCodificada = Uri.encodeComponent(mensagem);
 
     // Tentar abrir WhatsApp com número específico
@@ -64,12 +70,17 @@ class ShareLocationService {
       return ShareResult.semLocalizacao;
     }
 
+    final endereco = await GeocodingService.obterEndereco(
+      posicao.latitude,
+      posicao.longitude,
+    );
+
     final linkMaps = LocationService.gerarLinkMaps(
       posicao.latitude,
       posicao.longitude,
     );
 
-    final mensagem = _montarMensagem(linkMaps);
+    final mensagem = _montarMensagem(linkMaps, endereco: endereco?.resumo);
     final mensagemCodificada = Uri.encodeComponent(mensagem);
 
     final smsUri = Uri.parse('sms:$telefone?body=$mensagemCodificada');
@@ -114,12 +125,17 @@ class ShareLocationService {
       return ShareResult.semLocalizacao;
     }
 
+    final endereco = await GeocodingService.obterEndereco(
+      posicao.latitude,
+      posicao.longitude,
+    );
+
     final linkMaps = LocationService.gerarLinkMaps(
       posicao.latitude,
       posicao.longitude,
     );
 
-    final mensagem = _montarMensagem(linkMaps);
+    final mensagem = _montarMensagem(linkMaps, endereco: endereco?.resumo);
     final mensagemCodificada = Uri.encodeComponent(mensagem);
 
     final whatsappUri = Uri.parse(
@@ -141,7 +157,14 @@ class ShareLocationService {
   static Future<String?> prepararMensagem() async {
     final posicao = await LocationService.obterPosicaoAtual();
     if (posicao == null) return null;
-    return _montarMensagem(LocationService.gerarLinkMaps(posicao.latitude, posicao.longitude));
+    final endereco = await GeocodingService.obterEndereco(
+      posicao.latitude,
+      posicao.longitude,
+    );
+    return _montarMensagem(
+      LocationService.gerarLinkMaps(posicao.latitude, posicao.longitude),
+      endereco: endereco?.resumo,
+    );
   }
 
   /// Abre o WhatsApp com a [mensagem]. Com [telefone] (formato '5541999998888'),
@@ -165,7 +188,10 @@ class ShareLocationService {
     return ShareResult.falhaGeral;
   }
 
-  static String _montarMensagem(String linkMaps) {
+  static String _montarMensagem(String linkMaps, {String? endereco}) {
+    if (endereco != null && endereco.trim().isNotEmpty) {
+      return 'Preciso de ajuda. Estou perto de:\n📍 $endereco\n\nMinha localização no mapa:\n$linkMaps';
+    }
     return 'Preciso de ajuda. Minha localização atual:\n$linkMaps';
   }
 }

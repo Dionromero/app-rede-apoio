@@ -6,7 +6,7 @@ Aplicativo mobile em Flutter/Dart. Visão geral do projeto e fluxograma: [README
 
 - Android validado em emulador; também roda no Chrome (`flutter run -d chrome`) para testes rápidos.
 - iOS ainda não gerado (requer macOS e Xcode).
-- 90 testes passando (`flutter test`).
+- 95 testes passando (`flutter test`).
 
 ## Como está organizado
 

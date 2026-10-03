@@ -655,9 +655,26 @@ class _PassoAPasso extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: 28,
-                        child: Text('${i + 1}', style: AppFonts.serif(size: 16, color: AppColors.textHint)),
+                        child: p.isTransit
+                            ? const Icon(Icons.directions_bus_rounded, size: 20, color: AppColors.wine)
+                            : Text('${i + 1}', style: AppFonts.serif(size: 16, color: AppColors.textHint)),
                       ),
-                      Expanded(child: Text(p.instrucao, style: Theme.of(context).textTheme.bodyMedium)),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(p.instrucao, style: Theme.of(context).textTheme.bodyMedium),
+                            if (p.isTransit && p.numParadas != null && p.numParadas! > 0)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  '${p.numParadas} paradas${p.pontoDesembarque != null ? ' · Descer em ${p.pontoDesembarque}' : ''}',
+                                  style: const TextStyle(fontSize: 12, color: AppColors.wine, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                       if (p.distanciaM > 0)
                         Text(RoutePlan.formatarDistancia(p.distanciaM), style: Theme.of(context).textTheme.bodySmall),
                     ],
@@ -680,7 +697,11 @@ class _SeletorModo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const icones = {TravelMode.aPe: Icons.directions_walk_rounded, TravelMode.carro: Icons.directions_car_outlined};
+    const icones = {
+      TravelMode.aPe: Icons.directions_walk_rounded,
+      TravelMode.carro: Icons.directions_car_outlined,
+      TravelMode.onibus: Icons.directions_bus_rounded,
+    };
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: AppColors.sand, borderRadius: BorderRadius.circular(14)),

@@ -3,7 +3,8 @@ import 'package:latlong2/latlong.dart' show LatLng;
 /// Meio de transporte da rota calculada no app.
 enum TravelMode {
   aPe('a_pe', 'A pé', 'walking'),
-  carro('carro', 'Carro', 'driving');
+  carro('carro', 'Carro', 'driving'),
+  onibus('onibus', 'Ônibus', 'transit');
 
   const TravelMode(this.api, this.rotulo, this.googleMaps);
 
@@ -18,25 +19,40 @@ enum TravelMode {
       TravelMode.values.firstWhere((m) => m.api == v, orElse: () => TravelMode.aPe);
 }
 
-/// Um passo da rota ("Vire à direita na Rua XV").
+/// Um passo da rota ("Vire à direita na Rua XV" ou "Pegue o ônibus 203").
 class RouteStep {
   const RouteStep({
     required this.instrucao,
     required this.distanciaM,
     required this.duracaoS,
     this.via,
+    this.linhaTransit,
+    this.pontoEmbarque,
+    this.pontoDesembarque,
+    this.numParadas,
+    this.isTransit = false,
   });
 
   final String instrucao;
   final int distanciaM;
   final int duracaoS;
   final String? via;
+  final String? linhaTransit;
+  final String? pontoEmbarque;
+  final String? pontoDesembarque;
+  final int? numParadas;
+  final bool isTransit;
 
   factory RouteStep.fromJson(Map<String, dynamic> json) => RouteStep(
         instrucao: json['instrucao']?.toString() ?? '',
         distanciaM: (json['distancia_m'] as num?)?.round() ?? 0,
         duracaoS: (json['duracao_s'] as num?)?.round() ?? 0,
         via: json['via']?.toString(),
+        linhaTransit: json['linha_transit']?.toString(),
+        pontoEmbarque: json['ponto_embarque']?.toString(),
+        pontoDesembarque: json['ponto_desembarque']?.toString(),
+        numParadas: (json['num_paradas'] as num?)?.round(),
+        isTransit: json['is_transit'] == true,
       );
 }
 

@@ -23,9 +23,30 @@ function hora(iso: string | null): string {
   return iso ? new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "";
 }
 
+async function resolverEndereco(lat: number, lon: number): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
+      { headers: { "Accept-Language": "pt-BR" } },
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    const a = json.address;
+    if (!a) return json.display_name || null;
+    const partes: string[] = [];
+    if (a.road) partes.push(a.house_number ? `${a.road}, ${a.house_number}` : a.road);
+    if (a.suburb || a.neighbourhood) partes.push(a.suburb || a.neighbourhood);
+    if (a.city || a.town || a.municipality) partes.push(a.city || a.town || a.municipality);
+    return partes.length > 0 ? partes.join(" · ") : json.display_name || null;
+  } catch {
+    return null;
+  }
+}
+
 export function Acompanhar() {
   const [token] = useState(tokenDoLink);
   const [dados, setDados] = useState<Posicao | null>(null);
+  const [endereco, setEndereco] = useState<string | null>(null);
   const [falhou, setFalhou] = useState(false);
   const [agora, setAgora] = useState(Date.now());
 
@@ -42,6 +63,11 @@ export function Acompanhar() {
         if (parar) return;
         setDados(p);
         setFalhou(false);
+        if (p.latitude != null && p.longitude != null) {
+          resolverEndereco(p.latitude, p.longitude).then((end) => {
+            if (!parar && end) setEndereco(end);
+          });
+        }
         if (p.status === "ativo" || p.status === "aguardando") timer = window.setTimeout(ciclo, INTERVALO_MS);
       } catch {
         if (parar) return;
@@ -123,6 +149,11 @@ export function Acompanhar() {
             <section className="acomp__cabeca">
               <p className="rotulo">Localização ao vivo</p>
               <h1 className="acomp__titulo">{nome} está compartilhando a localização com você.</h1>
+              {endereco && (
+                <p className="acomp__endereco" style={{ marginTop: "0.5rem", fontWeight: 600, color: "#5a1827" }}>
+                  📍 {endereco}
+                </p>
+              )}
               <p className={`acomp__meta${desatualizado ? " acomp__meta--alerta" : ""}`}>
                 {desatualizado ? "Sem atualização " : "Atualizado "}
                 {tempoDesde(dados.updated_at, agora)}
@@ -159,7 +190,9 @@ export function Acompanhar() {
             <strong>Acha que ela está em perigo?</strong>
             <p>
               {temPosicao
-                ? "Ligue 190 e informe o endereço que aparece no mapa."
+                ? (endereco
+                    ? `Ligue 190 e informe o endereço: ${endereco}.`
+                    : "Ligue 190 e informe o endereço que aparece no mapa.")
                 : "Ligue 190 e informe onde ela pode estar."}{" "}
               Não vá sozinha ao local e não confronte o agressor.
             </p>
