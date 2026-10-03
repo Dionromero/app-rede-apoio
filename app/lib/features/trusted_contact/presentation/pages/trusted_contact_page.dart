@@ -73,7 +73,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
         SnackBar(
           content: Text(mensagem),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: AppColors.primary,
         ),
       );
@@ -91,7 +92,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
     }
     if (escolhido == null || !mounted) return;
 
-    final numero = TrustedContact.normalizarTelefoneBr(escolhido.selectedPhoneNumber ?? '');
+    final numero = TrustedContact.normalizarTelefoneBr(
+        escolhido.selectedPhoneNumber ?? '');
     if (numero == null) {
       _avisar('Esse número não parece um telefone brasileiro com DDD.');
       return;
@@ -102,7 +104,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
     );
   }
 
-  Future<void> _abrirFormulario({String nome = '', String telefone = ''}) async {
+  Future<void> _abrirFormulario(
+      {String nome = '', String telefone = ''}) async {
     final adicionado = await showModalBottomSheet<TrustedContact>(
       context: context,
       isScrollControlled: true,
@@ -128,7 +131,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
       return switch (await _repo.adicionar(contato)) {
         ResultadoAdicao.adicionado => null,
         ResultadoAdicao.duplicado => 'Esse número já está na sua lista.',
-        ResultadoAdicao.limiteAtingido => 'Sua lista já tem ${TrustedContactRepository.limite} pessoas.',
+        ResultadoAdicao.limiteAtingido =>
+          'Sua lista já tem ${TrustedContactRepository.limite} pessoas.',
       };
     } catch (e) {
       return 'Não foi possível salvar agora. Tente de novo.';
@@ -174,7 +178,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
       child: Scaffold(
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md,
+                AppSpacing.screen, AppSpacing.xl),
             children: [
               // ── Cabeçalho: progresso no onboarding, voltar pela Home ────
               _StepHeader(currentStep: _noOnboarding ? 1 : null, totalSteps: 2),
@@ -187,7 +192,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
               Text(
                 'Até $limite pessoas que você gostaria de avisar se precisar. '
                 'Nada é enviado agora.',
-                style: textos.bodyLarge?.copyWith(height: 1.5, color: AppColors.textSecondary),
+                style: textos.bodyLarge
+                    ?.copyWith(height: 1.5, color: AppColors.textSecondary),
               ),
 
               const SizedBox(height: AppSpacing.xl),
@@ -197,10 +203,12 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                 const _ListaVazia()
               else ...[
                 for (final contato in _contatos)
-                  _ContactTile(contato: contato, onRemove: () => _remover(contato)),
+                  _ContactTile(
+                      contato: contato, onRemove: () => _remover(contato)),
                 Text(
                   '${_contatos.length} de $limite',
-                  style: textos.labelMedium?.copyWith(color: AppColors.textSecondary),
+                  style: textos.labelMedium
+                      ?.copyWith(color: AppColors.textSecondary),
                 ),
               ],
 
@@ -213,6 +221,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                 if (!kIsWeb) ...[
                   OutlinedButton.icon(
                     onPressed: _escolherDaAgenda,
+                    style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.pinkSoft),
                     icon: const Icon(Icons.contacts_rounded, size: 20),
                     label: const Text('Escolher da agenda'),
                   ),
@@ -220,6 +230,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
                 ],
                 OutlinedButton.icon(
                   onPressed: () => _abrirFormulario(),
+                  style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.pinkSoft),
                   icon: const Icon(Icons.dialpad_rounded, size: 20),
                   label: const Text('Digitar número'),
                 ),
@@ -235,7 +247,8 @@ class _TrustedContactPageState extends State<TrustedContactPage> {
         // ── Ação principal, sempre visível ──────────────────────────
         bottomNavigationBar: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs, AppSpacing.screen, AppSpacing.md),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.xs,
+                AppSpacing.screen, AppSpacing.md),
             child: vazia
                 ? TextButton(
                     onPressed: _concluir,
@@ -289,7 +302,8 @@ class _FormularioPessoaState extends State<_FormularioPessoa> {
 
   Future<void> _enviar() async {
     if (_salvando || !_formKey.currentState!.validate()) return;
-    final contato = TrustedContact.fromInput(name: _nome.text, phone: _telefone.text);
+    final contato =
+        TrustedContact.fromInput(name: _nome.text, phone: _telefone.text);
     if (contato == null) return;
 
     setState(() {
@@ -315,7 +329,8 @@ class _FormularioPessoaState extends State<_FormularioPessoa> {
       // Sobe junto com o teclado.
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.screen, 0, AppSpacing.screen, AppSpacing.xl),
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screen, 0, AppSpacing.screen, AppSpacing.xl),
         child: Form(
           key: _formKey,
           child: Column(
@@ -328,11 +343,10 @@ class _FormularioPessoaState extends State<_FormularioPessoa> {
                 widget.daAgenda
                     ? 'Confira os dados. Se quiser, troque o nome por um apelido, como “Mãe”.'
                     : 'Pode ser um apelido, como “Mãe”. Nada é enviado a essa pessoa agora.',
-                style: textos.bodyMedium?.copyWith(height: 1.5, color: AppColors.textSecondary),
+                style: textos.bodyMedium
+                    ?.copyWith(height: 1.5, color: AppColors.textSecondary),
               ),
-
               const SizedBox(height: AppSpacing.xl),
-
               TextFormField(
                 controller: _nome,
                 autofocus: !widget.daAgenda,
@@ -355,9 +369,7 @@ class _FormularioPessoaState extends State<_FormularioPessoa> {
                   return null;
                 },
               ),
-
               const SizedBox(height: AppSpacing.md),
-
               TextFormField(
                 controller: _telefone,
                 keyboardType: TextInputType.phone,
@@ -370,13 +382,13 @@ class _FormularioPessoaState extends State<_FormularioPessoa> {
                   prefixIcon: Icon(Icons.phone_outlined),
                 ),
                 validator: (value) {
-                  if (TrustedContact.normalizarTelefoneBr(value ?? '') == null) {
+                  if (TrustedContact.normalizarTelefoneBr(value ?? '') ==
+                      null) {
                     return 'Informe um telefone válido.';
                   }
                   return null;
                 },
               ),
-
               if (_erro != null) ...[
                 const SizedBox(height: AppSpacing.sm),
                 // liveRegion: o leitor de tela anuncia o erro assim que aparece.
@@ -384,13 +396,12 @@ class _FormularioPessoaState extends State<_FormularioPessoa> {
                   liveRegion: true,
                   child: Text(
                     _erro!,
-                    style: textos.bodyMedium?.copyWith(color: AppColors.emergency),
+                    style:
+                        textos.bodyMedium?.copyWith(color: AppColors.emergency),
                   ),
                 ),
               ],
-
               const SizedBox(height: AppSpacing.xl),
-
               FilledButton.icon(
                 onPressed: _salvando ? null : _enviar,
                 icon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
@@ -463,7 +474,9 @@ class _StepHeader extends StatelessWidget {
                       return Expanded(
                         child: Container(
                           height: 4,
-                          margin: EdgeInsets.only(right: index < totalSteps - 1 ? AppSpacing.xxs : 0),
+                          margin: EdgeInsets.only(
+                              right:
+                                  index < totalSteps - 1 ? AppSpacing.xxs : 0),
                           decoration: BoxDecoration(
                             color: isActive ? AppColors.pink : AppColors.border,
                             borderRadius: BorderRadius.circular(4),
@@ -493,7 +506,8 @@ class _ContactTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.xs, AppSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.sm, AppSpacing.xs, AppSpacing.sm),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
@@ -529,7 +543,8 @@ class _ContactTile extends StatelessWidget {
           IconButton(
             onPressed: onRemove,
             tooltip: 'Remover ${contato.name}',
-            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.textSecondary),
+            icon: const Icon(Icons.delete_outline_rounded,
+                color: AppColors.textSecondary),
           ),
         ],
       ),
@@ -572,7 +587,8 @@ class _ListaVazia extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
                   'Adicione alguém em quem você confia usando os botões abaixo.',
-                  style: textos.bodySmall?.copyWith(height: 1.4, color: AppColors.textSecondary),
+                  style: textos.bodySmall
+                      ?.copyWith(height: 1.4, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -615,7 +631,8 @@ class _AvisoPrivacidade extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.lock_outline_rounded, size: 18, color: AppColors.textSecondary),
+        const Icon(Icons.lock_outline_rounded,
+            size: 18, color: AppColors.textSecondary),
         const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
